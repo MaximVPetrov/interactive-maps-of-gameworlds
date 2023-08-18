@@ -10,4 +10,6 @@ let mouseClickHandler = function (event) {
 	userInputHandler.mouseClick(event);
 }
 cnv.addEventListener('click', mouseClickHandler);
-window.onload = function () { mapRenderer.draw(); };
+
+window.addEventListener("resize", function (event) { mapRenderer.resizeViewport(); mapRenderer.draw(); });
+window.addEventListener("load", function (event) { mapRenderer.resizeViewport(); mapRenderer.draw(); });

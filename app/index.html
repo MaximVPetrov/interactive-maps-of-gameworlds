@@ -1,19 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="style.css">
     <title>Interactive maps of game worlds</title>
   </head>
   <body>
-    <canvas id="canvas"></canvas>
+    <div class="window">
+      <div class="row header">
+      </div>
+      <div class="row content">
+        <canvas id="canvas"></canvas>
+      </div>
+      <div class="row footer">
+      </div>
+    </div>
 
     <script src="collisionDetection.js"></script>
     <script src="DragonWarriorMapBuilder.js"></script>
     <script src="Map.js"></script>
     <script src="MapRenderer.js"></script>
     <script src="Quest.js"></script>
-	<script src="UserInputHandler.js"></script>
+    <script src="UserInputHandler.js"></script>
 
     <script src="app.js"></script>
-	<noscript>This page requires JavaScript to display correctly.</noscript>
+    <noscript>This page requires JavaScript to display correctly.</noscript>
   </body>
 </html>

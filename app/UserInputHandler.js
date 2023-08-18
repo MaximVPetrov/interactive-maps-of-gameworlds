@@ -5,7 +5,7 @@ class UserInputHandler {
 		if (mapRenderer !== undefined) this.mapRenderer = mapRenderer;
 	}
 
-    mouseClick(event) {
+	mouseClick(event) {
 		const renderer = this.mapRenderer;
 		const quests = renderer.map.quests;
 		

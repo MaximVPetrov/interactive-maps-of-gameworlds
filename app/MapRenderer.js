@@ -14,6 +14,11 @@ class MapRenderer {
 	setMap(newMap) {
 		this.map = newMap;
 	}
+
+	resizeViewport() {
+		this.canvas.width = this.canvas.clientWidth;
+		this.canvas.height = this.canvas.clientHeight;
+	}
 	
 	drawQuest(quest) {
 	}

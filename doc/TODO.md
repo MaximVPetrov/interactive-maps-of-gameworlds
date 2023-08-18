@@ -1,0 +1,1 @@
+Script with "concat" instruction to merge multiple js script files into one.

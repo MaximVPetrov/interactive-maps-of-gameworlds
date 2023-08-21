@@ -1,5 +1,3 @@
-// TODO: Отвязать от холста
-
 class Camera {
 	
 	constructor(scale, aspectRatio) {

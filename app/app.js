@@ -11,5 +11,5 @@ let mouseClickHandler = function (event) {
 }
 cnv.addEventListener('click', mouseClickHandler);
 
-window.addEventListener("resize", function (event) { mapRenderer.resizeViewport(); mapRenderer.draw(); });
-window.addEventListener("load", function (event) { mapRenderer.resizeViewport(); mapRenderer.draw(); });
+window.addEventListener("resize", function (event) { mapRenderer.resizeViewport(); });
+window.addEventListener("load", function (event) { mapRenderer.resizeViewport(); });

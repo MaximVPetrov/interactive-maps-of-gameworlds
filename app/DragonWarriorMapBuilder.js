@@ -13,6 +13,15 @@ class DragonWarriorMapBuilder {
 		this.quests[key] = quest;
 		this.map.addQuest(quest);
 	}
+
+	createTestPoints() {
+		const map = this.map;
+		map.addPoint(new Point());
+		map.addPoint(new Point(-5, 2));
+		map.addPoint(new Point(5, 2));
+		map.addPoint(new Point(-5, -2));
+		map.addPoint(new Point(5, -2));
+	}
 	
 	createQuests() {
 		const quests = this.quests;
@@ -59,6 +68,7 @@ class DragonWarriorMapBuilder {
 
 	generateDragonWarriorMap() {
 		this.map = new Map();
+		this.createTestPoints();
 		this.createQuests();
 		return this.map;
 	}

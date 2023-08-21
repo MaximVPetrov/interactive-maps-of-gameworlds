@@ -5,7 +5,12 @@ class Map {
 	}
 	
 	clear () {
+		this.points = [];
 		this.quests = [];
+	}
+	
+	addPoint(p) {
+		this.points.push(p);
 	}
 	
 	addQuest(q) {

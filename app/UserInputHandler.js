@@ -17,6 +17,12 @@ class UserInputHandler {
 		}
 		
 		renderer.draw();
+		
+		// debug
+		const mx = event.offsetX;
+		const my = event.offsetY;
+		const mw = renderer.viewport.toWorldCoordinates(new Point(mx, my));
+		console.log('Click: (' + mw.x + '; ' + mw.y + ')');
 	}
 	
 }

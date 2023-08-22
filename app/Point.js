@@ -1,8 +1,20 @@
+"use strict"
+
 class Point {
 	
 	constructor(x, y) {
-		this.x = x === undefined ? 0 : x;
-		this.y = y === undefined ? 0 : y;
+		if (y === undefined) {
+			if (x === undefined) {
+				this.x = 0;
+				this.y = 0;
+			} else {
+				this.x = x.x;
+				this.y = x.y;
+			}
+		} else {
+			this.x = x;
+			this.y = y;
+		}
 	}
 
 	set(point) {

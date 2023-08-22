@@ -1,3 +1,5 @@
+"use strict"
+
 const cnv = document.getElementById('canvas');
 
 const mapBuilder = new DragonWarriorMapBuilder();

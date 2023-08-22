@@ -1,3 +1,5 @@
+"use strict"
+
 class MapRenderer {
 	
 	constructor(map, canvas) {
@@ -11,6 +13,10 @@ class MapRenderer {
 		
 		let metrics = this.context2d.measureText('Tg');
 		this.textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+		
+		this.questMarkRadius = 4; // px
+		this.questFont = '12px Serif'; 
+		this.questTextOffset = 8;
 	}
 	
 	setMap(newMap) {
@@ -44,23 +50,49 @@ class MapRenderer {
 		}
 	}
 	
-	drawQuest(quest) {
+	drawQuest(q) {
+		const p = this.viewport.toPixels(q.position);
+		const ctx = this.context2d;
+		ctx.beginPath();
+		ctx.arc(p.x, p.y, this.questMarkRadius, 0, 2 * Math.PI);
+		ctx.fill();
+		ctx.fillText(q.description, p.x, p.y - this.questTextOffset);
 	}
 	
 	drawQuests() {
 		const ctx = this.context2d;
-		ctx.font = '12px Serif';
+		ctx.textAlign = "center";
+		ctx.font = this.questFont;
 		const quests = this.map.quests;
 		for (let i = 0; i < quests.length; i++) {
 			const q = quests[i];
-			if (q.isLocked()) {
-				ctx.fillStyle = '#a0a0a0';
-			} else if (q.completed) {
-				ctx.fillStyle =  '#40b040';
-			} else {
-				ctx.fillStyle =  '#000000';
+			const qPos = this.viewport.toPixels(q.position);
+			
+			const m = ctx.measureText(q.description);
+			const halfWidth = m.width * 0.5;
+			
+			const left = qPos.x - halfWidth;
+			const right = qPos.x + halfWidth;
+			const top = qPos.y - this.questTextOffset - m.actualBoundingBoxAscent;
+			const bottom = qPos.y + this.questMarkRadius;
+			
+			// y axis of framebuffer is opposite to y axis of world coordinates
+			// in isAABBIntersects top should be bigger than bottom
+			const qtl = new Point(left, bottom);
+			const qbr = new Point(right, top);
+			const vtl = new Point(0, this.viewport.getFramebufferHeight());
+			const vbr = new Point(this.viewport.getFramebufferWidth(), 0);
+			
+			if (isAABBIntersects(qtl, qbr, vtl, vbr)) {
+				if (q.isLocked()) {
+					ctx.fillStyle = '#a0a0a0';
+				} else if (q.completed) {
+					ctx.fillStyle =  '#40b040';
+				} else {
+					ctx.fillStyle =  '#000000';
+				}
+				this.drawQuest(q);
 			}
-			ctx.fillText(q.description, 0, (i + 1) * this.textHeight);
 		}
 	}
 	

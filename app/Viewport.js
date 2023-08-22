@@ -1,3 +1,5 @@
+"use strict"
+
 class Viewport {
 	
 	constructor(canvas, camera) {
@@ -20,5 +22,21 @@ class Viewport {
 		this.canvas.width = this.canvas.clientWidth;
 		this.canvas.height = this.canvas.clientHeight;
 		this.camera.setAspectRatio(this.canvas.width / this.canvas.height);
+	}
+	
+	getFramebufferWidth() {
+		return this.canvas.width;
+	}
+	
+	getFramebufferHeight() {
+		return this.canvas.height;
+	}
+	
+	getPixelsPerUnit() {
+		return this.canvas.width / this.camera.getWidth();
+	}
+	
+	getPixelsPerUnits(v) {
+		this.getPixelsPerUnit() * v;
 	}
 }

@@ -1,3 +1,5 @@
+"use strict"
+
 const Actions = {
 	WALK: 'Walk to',
 	TAKE: 'Pick up',
@@ -8,9 +10,18 @@ const Actions = {
 
 class Quest {
 
-	constructor(desc, action) {
+	constructor(desc, action, pos, posy) {
 		this.action = action === undefined ? Actions.WALK : action;
 		this.description = desc === undefined ? "No description" : desc;
+		this.position = new Point();
+		if (pos !== undefined) {
+			if (posy === undefined) {
+				this.position.set(pos);
+			} else {
+				this.position.x = pos;
+				this.position.y = posy;
+			}
+		}
 		this.questsToUnlock = [];
 		this.completed = false;
 	}

@@ -73,7 +73,17 @@ class Camera {
 	}
 
 	setScale(value) {
-		this.halfWidth = value / 2.0;
+		this.halfWidth = value * 0.5;
 		this.halfHeight = this.halfWidth / this.aspectRatio;
+	}
+	
+	zoomIn() {
+		this.halfWidth *= 0.9;
+		this.halfHeight *= 0.9;
+	}
+	
+	zoomOut() {
+		this.halfWidth *= 1.1;
+		this.halfHeight *= 1.1;
 	}
 }

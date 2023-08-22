@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 const cnv = document.getElementById('canvas');
 

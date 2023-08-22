@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 class MapRenderer {
 	
@@ -21,6 +21,11 @@ class MapRenderer {
 	
 	setMap(newMap) {
 		this.map = newMap;
+	}
+
+	isBoxInView(tl, br) {
+		const c = this.camera;
+		return (isRangesIntersects(tl.x, br.x, c.getLeft(), c.getRight()) && isRangesIntersects(br.y, tl.y, c.getBottom(), c.getTop()));
 	}
 
 	resizeViewport() {
@@ -46,6 +51,34 @@ class MapRenderer {
 		for (let p of points) {
 			if (isNumberInRange(p.x, cl, cr) && isNumberInRange(p.y, cb, ct)) {
 				this.drawPoint(p);
+			}
+		}
+	}
+
+	drawTileField(tf) {
+		const cam = this.camera;
+		const viewport = this.viewport;
+		const ctx = this.context2d;
+		const origin = viewport.toPixels(tf.getTopLeft());
+		const size = tf.tileSize * viewport.getPixelsPerUnit();
+		for (let i = 0; i < tf.numOfTilesY; i++) {
+			for (let j = 0; j < tf.numOfTilesX; j++) {
+				const tile = tf.getTile(j, i);
+				if (tile !== undefined) {
+					const left = origin.x + size * j;
+					const top = origin.y + size * i;
+					if (isRangesIntersects(left, left + size, 0, viewport.getFramebufferWidth) && isRangesIntersects(top, top + size, 0, viewport.getFramebufferHeight)) {
+						ctx.drawImage(tile.img, left, top, size, size);
+					}
+				}
+			}
+		}
+	}
+	
+	drawTileFields() {
+		for (const tf of this.map.tileFields) {
+			if (this.isBoxInView(tf.getTopLeft(), tf.getBottomRight())) {
+				this.drawTileField(tf);
 			}
 		}
 	}
@@ -99,6 +132,7 @@ class MapRenderer {
 	draw() {
 		this.context2d.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.drawPoints();
+		this.drawTileFields();
 		this.drawQuests();
 	}
 }

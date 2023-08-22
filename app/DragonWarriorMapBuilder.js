@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 class DragonWarriorMapBuilder {
 	
@@ -19,6 +19,10 @@ class DragonWarriorMapBuilder {
 
 		this.ccBridgePos = new Point(0.5, 0);
 	}
+
+	addTileField(tf) {
+		this.map.addTileField(tf);
+	}
 	
 	addQuest(quest, key) {
 		if (this.quests[key] !== undefined) {
@@ -28,15 +32,48 @@ class DragonWarriorMapBuilder {
 		this.map.addQuest(quest);
 	}
 
-	createTestPoints() {
-		const map = this.map;
-		map.addPoint(new Point());
-		map.addPoint(new Point(-5, 2));
-		map.addPoint(new Point(5, 2));
-		map.addPoint(new Point(-5, -2));
-		map.addPoint(new Point(5, -2));
+    createAndLoadTileSet() {
+		const dir = 'img/tilesets/dw/';
+		const ext = '.png'
+		const tileNames = [
+			'brick',
+			'bridge',
+			'castle',
+			'chest',
+			'desert',
+			'door',
+			'grass',
+			'hill',
+			'king',
+			'mountain',
+			'stairs',
+			'table',
+			'trees',
+			'village',
+			'wall',
+			'water'
+		]
+		const tileSet = new TileSet();
+		const tiles = tileSet.tiles;
+		for (const name of tileNames) {
+			tiles.push(new Tile(dir + name + ext, name));
+		}
+		return tileSet;
 	}
 	
+	createTestTileField() {
+		const ts = this.createAndLoadTileSet();
+		const castle = ts.getTile('castle');
+		const grass = ts.getTile('grass');
+		const tf = new TileField(3, 3);
+		tf.tiles.push(
+			grass, grass, grass,
+			grass, castle, grass,
+			grass, grass, grass
+		);
+		this.addTileField(tf);
+	}
+
 	createQuests() {
 		const quests = this.quests;
 		
@@ -82,8 +119,8 @@ class DragonWarriorMapBuilder {
 
 	generateDragonWarriorMap() {
 		this.map = new Map();
-		this.createTestPoints();
 		this.createQuests();
+		this.createTestTileField();
 		return this.map;
 	}
 }

@@ -2,9 +2,11 @@
 
 class UserInputHandler {
 	
-	constructor(mapRenderer) {
+	constructor(mapRenderer, gui, draw) {
 		this.mapRenderer = null;
 		if (mapRenderer !== undefined) this.mapRenderer = mapRenderer;
+		this.gui = gui;
+		this.draw = draw;
 		this.mouseButtonPressed = -1;
 	}
 
@@ -15,6 +17,8 @@ class UserInputHandler {
 		const mx = event.offsetX;
 		const my = event.offsetY;
 		const mp = new Point(mx, my);
+		
+		this.gui.click(mx, my);
 		
 		const quests = renderer.map.quests;
 		const maxDist = viewport.getFramebufferWidth() / 100;
@@ -27,7 +31,7 @@ class UserInputHandler {
 			}
 		}
 		
-		renderer.draw();
+		this.draw();
 		
 		// debug
 		const mw = renderer.viewport.toWorldCoordinates(new Point(mx, my));
@@ -44,13 +48,17 @@ class UserInputHandler {
 	
 	mouseMove(event) {
 		if (this.mouseButtonPressed == 0) {
-			const renderer = this.mapRenderer;
-			const vp = renderer.viewport;
-			const cam = renderer.camera;
-			const mx = event.movementX / vp.getPixelsPerUnit();
-			const my = event.movementY / vp.getPixelsPerUnit();
-			cam.move(new Point(-mx, my));
-			renderer.draw();
+			if (this.gui.drag(event.offsetX, event.offsetY, event.movementX, event.movementY)) {
+				this.draw();
+			} else {
+				const renderer = this.mapRenderer;
+				const vp = renderer.viewport;
+				const cam = renderer.camera;
+				const mx = event.movementX / vp.getPixelsPerUnit();
+				const my = event.movementY / vp.getPixelsPerUnit();
+				cam.move(new Point(-mx, my));
+				this.draw();
+			}
 		}
 	}
 	
@@ -62,7 +70,7 @@ class UserInputHandler {
 		} else {
 			cam.zoomIn();
 		}
-		renderer.draw();
+		this.draw();
 	}
 
 	keyDown(event) {

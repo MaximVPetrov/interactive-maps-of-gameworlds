@@ -134,6 +134,16 @@ class LayoutManager {
 			b.height = meas.fontBoundingBoxAscent + meas.fontBoundingBoxDescent + this.padding * 2;
 			x += b.width + this.padding;
 		}
+		for (let b of this.bottomButtons) {
+			b.font = this.font;
+			b.padding = this.padding;
+			const meas = ctx.measureText(b.text);
+			b.width = meas.width + this.padding * 2;
+			b.height = meas.fontBoundingBoxAscent + meas.fontBoundingBoxDescent + this.padding * 2;
+			b.x = 0;
+			b.y = ctx.canvas.height - b.height;
+			x += b.width + this.padding;
+		}
 		if (this.imageList != null) {
 			const il = this.imageList;
 			il.width = this.canvas.width / 20;

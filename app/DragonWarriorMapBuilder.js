@@ -125,6 +125,174 @@ class DragonWarriorMapBuilder {
 
 function generateDragonWarriorMapContainer() {
 	return {
-		
+		objects: [
+			{
+				"type": "tileset",
+				"tiles": {
+					"brick": "img/tilesets/dw/brick.png",
+					"bridge": "img/tilesets/dw/bridge.png",
+					"castle": "img/tilesets/dw/castle.png",
+					"chest": "img/tilesets/dw/chest.png",
+					"desert": "img/tilesets/dw/desert.png",
+					"door": "img/tilesets/dw/door.png",
+					"grass": "img/tilesets/dw/grass.png",
+					"hill": "img/tilesets/dw/hill.png",
+					"king": "img/tilesets/dw/king.png",
+					"mountain": "img/tilesets/dw/mountain.png",
+					"stairs": "img/tilesets/dw/stairs.png",
+					"table": "img/tilesets/dw/table.png",
+					"trees": "img/tilesets/dw/trees.png",
+					"village": "img/tilesets/dw/village.png",
+					"wall": "img/tilesets/dw/wall.png",
+					"water": "img/tilesets/dw/water.png"
+				}
+			},
+			{
+				"type": "tilefield",
+				"size": {
+					"x": 3,
+					"y": 3
+				},
+				"tileSize": {
+					"x": 0.5,
+					"y": 0.5
+				},
+				"position": {
+					"x": 10,
+					"y": -1
+				},
+				"tiles": [
+					"grass",
+					"grass",
+					"hill",
+					"grass",
+					"castle",
+					"trees",
+					"grass",
+					"grass",
+					"village"
+				]
+			},
+			{
+				"type": "quest",
+				"position": {
+					"x": -1,
+					"y": 1
+				},
+				"description": "King Loric",
+				"action": "Talk to",
+				"quests": []
+			},
+			{
+				"type": "quest",
+				"position": {
+					"x": 3,
+					"y": -1
+				},
+				"description": "Magic Keys",
+				"action": "Pick up",
+				"quests": [
+					0
+				]
+			},
+			{
+				"type": "quest",
+				"position": {
+					"x": 3,
+					"y": 1
+				},
+				"description": "Green Dragon",
+				"action": "Defeat",
+				"quests": [
+					0
+				]
+			},
+			{
+				"type": "quest",
+				"position": {
+					"x": -4,
+					"y": 4
+				},
+				"description": "Silver Harp",
+				"action": "Pick up",
+				"quests": [
+					1
+				]
+			},
+			{
+				"type": "quest",
+				"position": {
+					"x": 2,
+					"y": 4
+				},
+				"description": "Staff of Rain",
+				"action": "Pick up",
+				"quests": [
+					3
+				]
+			},
+			{
+				"type": "quest",
+				"position": {
+					"x": -1,
+					"y": 1.2
+				},
+				"description": "Stones of Sunlight",
+				"action": "Pick up",
+				"quests": [
+					1
+				]
+			},
+			{
+				"type": "quest",
+				"position": {
+					"x": 2,
+					"y": -4
+				},
+				"description": "Erdrick's Token",
+				"action": "Pick up",
+				"quests": [
+					0
+				]
+			},
+			{
+				"type": "quest",
+				"position": {
+					"x": 0.5,
+					"y": 0
+				},
+				"description": "Rainbow Drop",
+				"action": "Use",
+				"quests": [
+					4,
+					5,
+					6
+				]
+			},
+			{
+				"type": "quest",
+				"position": {
+					"x": -0.5,
+					"y": 0
+				},
+				"description": "Dragonlord",
+				"action": "Defeat",
+				"quests": [
+					7
+				]
+			},
+			{
+				"type": "quest",
+				"position": {
+					"x": -1,
+					"y": 1.4
+				},
+				"description": "King Lorik",
+				"action": "Talk to",
+				"quests": [
+					8
+				]
+			}
+		]
 	}
 }

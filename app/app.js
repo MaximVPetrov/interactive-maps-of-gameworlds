@@ -111,99 +111,150 @@ function onTileSelectorPress(ind) {
 function onSaveButtonPress() {
 	if (editor.selected) {
 	}
-	showTextInNewWindow(JSON.stringify(saveTileSetToContainer(editor.tileSet), undefined, '\t'));
+	showTextInNewWindow(JSON.stringify(mapToContainer(map), undefined, '\t'));
 }
 
 // Editor testing
 function showTextInNewWindow(t) {
-	//let win = window.open("", "Title", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=780,height=200,top="+(screen.height-400)+",left="+(screen.width-840));
 	let win = window.open("", "Title", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=640,height=480,top="+(screen.height-100)+",left="+(screen.width-100));
 	win.document.body.innerHTML = '<pre>' + t + '</pre>';
 }
 
-function saveTileSetToContainer(ts) {
-	const c = new Object();
+
+function pointToContainer(p) {
+	return {
+		type: 'point',
+		position: {
+			x: p.position.x,
+			y: p.position.y
+		}
+	}
+}
+
+function tileSetToContainer(ts) {
+	const c = {
+		type: 'tileset',
+		tiles: new Object()
+	};
 	for (let t of ts.tiles) {
-		c[t.description] = t.img.src;
+		c.tiles[t.description] = t.img.src;
 	}
 	return c;
 }
 
-function tileFieldToText(tf) {
-	let res = '{\n';
-	res += '\ttype: "tilefield",\n';
-	res += '\tsizeX: ' + tf.numOfTilesX + ',\n';
-	res += '\tsizeY: ' + tf.numOfTilesY + ',\n';
-	res += '\tposX: ' + tf.position.x + ',\n';
-	res += '\tposY: ' + tf.position.y + ',\n';
-	res += '\ttiles: [\n'
+function tileFieldToContainer(tf) {
+	const tiles = [];
 	for (let t of tf.tiles) {
-		res += '\t\t' + t.description + ',\n';
+		tiles.push(t.description);
 	}
-	res += '\t]\n'
-	res += '}';
-	return res;
+	return {
+		type: 'tilefield',
+		size: {
+			x: tf.numOfTilesX,
+			y: tf.numOfTilesY
+		},
+		tileSize: {
+			x: tf.tileSize,
+			y: tf.tileSize
+		},
+		position: {
+			x: tf.position.x,
+			y: tf.position.y,
+		},
+		tiles
+	}
+}
+
+function questToContainer(q, qList) {
+	const quests = [];
+	for (let uq of q.questsToUnlock) {
+		quests.push(qList.indexOf(uq));
+	}
+	return {
+		type: 'quest',
+		position: {
+			x: q.position.x,
+			y: q.position.y
+		},
+		description: q.description,
+		action: q.action,
+		quests: quests
+	}
+}
+
+function mapToContainer(m) {
+	for (let p of m.points) {
+		list.push(pointToContainer(p));
+	}
+	const list = [];
+	list.push(tileSetToContainer(editor.tileSet));
+	for (let tf of m.tileFields) {
+		list.push(tileFieldToContainer(tf));
+	}
+	for (let q of m.quests) {
+		list.push(questToContainer(q, m.quests));
+	}
+	return {
+		objects: list,
+	}
+}
+
+
+function createPointFromContainer(c) {
+	return new Point(c.position.x, c.position.y);
 }
 
 function createTileSetFromContainer(c) {
 	const tileSet = new TileSet();
 	const tiles = tileSet.tiles;
-	for (let p in c) {
-		tiles.push(new Tile(c[p], p));
+	for (let p in c.tiles) {
+		tiles.push(new Tile(c.tiles[p], p));
 	}
 	return tileSet;	
 }
 
-function createMapFromContainer(c) {
-}
-
-function createTileSetContainer() {
-	let c = new Object();
-	const dir = 'img/tilesets/dw/';
-	const ext = '.png'
-	const tileNames = [
-		'brick',
-		'bridge',
-		'castle',
-		'chest',
-		'desert',
-		'door',
-		'grass',
-		'hill',
-		'king',
-		'mountain',
-		'stairs',
-		'table',
-		'trees',
-		'village',
-		'wall',
-		'water'
-	]
-	for (let name of tileNames) {
-		c[name] = dir + name + ext;
+function createTileFieldFromContainer(c, tileSet) {
+	const tf = new TileField();
+	tf.numOfTilesX = c.size.x;
+	tf.numOfTilesY = c.size.y;
+	tf.tileSize = c.tileSize.x;
+	tf.position.x = c.position.x;
+	tf.position.y = c.position.y;
+	for (let t of c.tiles) {
+		tf.addTile(tileSet.getTile(t));
 	}
-	return c;
+	return tf;
 }
 
-let ts = createTileSetFromContainer(createTileSetContainer());
+function createQuestFromContainer(c, quests) {
+	const q = new Quest();
+	q.action = c.action;
+	q.description = c.description;
+	q.position.x = c.position.x;
+	q.position.y = c.position.y;
+	for (let i of c.quests) {
+		q.addPreviousQuests(quests[i]);
+	}
+	return q;
+}
 
-let ts2 = {
-	"brick": "file:///C:/Users/mvp17/Desktop/interactive-maps-of-game-worlds/app/img/tilesets/dw/brick.png",
-	"bridge": "file:///C:/Users/mvp17/Desktop/interactive-maps-of-game-worlds/app/img/tilesets/dw/bridge.png",
-	"castle": "file:///C:/Users/mvp17/Desktop/interactive-maps-of-game-worlds/app/img/tilesets/dw/castle.png",
-	"chest": "file:///C:/Users/mvp17/Desktop/interactive-maps-of-game-worlds/app/img/tilesets/dw/chest.png",
-	"desert": "file:///C:/Users/mvp17/Desktop/interactive-maps-of-game-worlds/app/img/tilesets/dw/desert.png",
-	"door": "file:///C:/Users/mvp17/Desktop/interactive-maps-of-game-worlds/app/img/tilesets/dw/door.png",
-	"grass": "file:///C:/Users/mvp17/Desktop/interactive-maps-of-game-worlds/app/img/tilesets/dw/grass.png",
-	"hill": "file:///C:/Users/mvp17/Desktop/interactive-maps-of-game-worlds/app/img/tilesets/dw/hill.png",
-	"king": "file:///C:/Users/mvp17/Desktop/interactive-maps-of-game-worlds/app/img/tilesets/dw/king.png",
-	"mountain": "file:///C:/Users/mvp17/Desktop/interactive-maps-of-game-worlds/app/img/tilesets/dw/mountain.png",
-	"stairs": "file:///C:/Users/mvp17/Desktop/interactive-maps-of-game-worlds/app/img/tilesets/dw/stairs.png",
-	"table": "file:///C:/Users/mvp17/Desktop/interactive-maps-of-game-worlds/app/img/tilesets/dw/table.png",
-	"trees": "file:///C:/Users/mvp17/Desktop/interactive-maps-of-game-worlds/app/img/tilesets/dw/trees.png",
-	"village": "file:///C:/Users/mvp17/Desktop/interactive-maps-of-game-worlds/app/img/tilesets/dw/village.png",
-	"wall": "file:///C:/Users/mvp17/Desktop/interactive-maps-of-game-worlds/app/img/tilesets/dw/wall.png",
-	"water": "file:///C:/Users/mvp17/Desktop/interactive-maps-of-game-worlds/app/img/tilesets/dw/water.png"
-};
+function createMapFromContainer(c) {
+	let m = new Map();
+	let ts = new TileSet();
+	for (let i of c.objects) {
+		switch (i.type) {
+			case 'tileset':
+				ts = createTileSetFromContainer(i);
+				break;
+			case 'tilefield':
+				m.addTileField(createTileFieldFromContainer(i, ts));
+				break;
+			case 'quest':
+				m.addQuest(createQuestFromContainer(i, m.quests));
+				break;
+		}
+	}
+	return m;
+}
 
-createTileSetFromContainer(ts2);
+let testMap = createMapFromContainer(generateDragonWarriorMapContainer());

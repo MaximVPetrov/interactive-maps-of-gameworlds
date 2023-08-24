@@ -68,11 +68,20 @@ class UserInputHandler {
 	mouseWheel(event) {
 		const renderer = this.mapRenderer;
 		const cam = renderer.camera;
+		const mx = event.offsetX;
+		const my = event.offsetY;
+		const mp = new Point(mx, my);
+		const wp = renderer.viewport.toWorldCoordinates(mp);
+		const relx = (wp.x - cam.position.x) / cam.getWidth();
+		const rely = (wp.y - cam.position.y) / cam.getHeight();
 		if (event.deltaY > 0) {
 			cam.zoomOut();
 		} else {
 			cam.zoomIn();
 		}
+		const newx = relx * cam.getWidth() + cam.position.x;
+		const newy = rely * cam.getHeight() + cam.position.y;
+		cam.move(new Point(wp.x - newx, wp.y - newy));
 		this.draw();
 	}
 

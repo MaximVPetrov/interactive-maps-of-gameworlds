@@ -55,6 +55,21 @@ class MapRenderer {
 		}
 	}
 
+	drawSubstrates() {
+		const ctx = this.context2d;
+		for (let substrate of this.map.substrates) {
+			let imgtl = substrate.getTopLeft();
+			let imgbr = substrate.getBottomRight();
+			if (this.isBoxInView(imgtl, imgbr)) {
+				let imgtlpx = this.camera.toPixels(imgtl);
+				let imgbrpx = this.camera.toPixels(imgbr);
+				
+				ctx.drawImage(substrate.img, imgtlpx.x, imgtlpx.y, imgbrpx.x - imgtlpx.x, imgbrpx.y - imgtlpx.y);
+			}
+		
+		}
+	}
+
 	drawTileField(tf) {
 		const cam = this.camera;
 		const viewport = this.viewport;
@@ -132,6 +147,7 @@ class MapRenderer {
 	draw() {
 		this.context2d.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.drawPoints();
+		this.drawSubstrates();
 		this.drawTileFields();
 		this.drawQuests();
 	}

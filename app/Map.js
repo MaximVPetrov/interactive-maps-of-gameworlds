@@ -8,12 +8,17 @@ class Map {
 	
 	clear () {
 		this.points = [];
+		this.substrates = [];
 		this.tileFields = [];
 		this.quests = [];
 	}
 	
 	addPoint(p) {
 		this.points.push(p);
+	}
+	
+	addSubstrate(s) {
+		this.substrates.push(s);
 	}
 	
 	addTileField(tf) {

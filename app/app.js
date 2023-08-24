@@ -5,8 +5,9 @@ const cnv = document.getElementById('canvas');
 const mapBuilder = new DragonWarriorMapBuilder();
 const map = mapBuilder.generateDragonWarriorMap();
 const mapRenderer = new MapRenderer(map, cnv);
+const editor = new Editor(mapRenderer);
 const gui = new GraphicalInterface(cnv);
-const userInputHandler = new UserInputHandler(mapRenderer, gui, draw);
+const userInputHandler = new UserInputHandler(mapRenderer, editor, gui, draw);
 
 run();
 
@@ -37,7 +38,7 @@ function run() {
 		img.src = 'img/tilesets/dw/' + n + '.png';
 		images.push(img);
 	}
-	gui.addImageList(images, 200, 10);
+	gui.addImageList(images, onTileSelectorPress, 200, 10);
 
 	window.addEventListener('keydown', onKeyDown);
 	window.addEventListener('keypress', onKeyPress);
@@ -58,6 +59,7 @@ function resize() {
 
 function draw() {
 	mapRenderer.draw();
+	editor.draw();
 	gui.draw();
 }
 
@@ -98,5 +100,9 @@ function onKeyPress(event) {
 }
 
 function onEditorButtonPress() {
-	console.log('editor button is pressed!');
+	editor.setActive(!editor.active);
+}
+
+function onTileSelectorPress(ind) {
+	editor.setTile(ind);
 }

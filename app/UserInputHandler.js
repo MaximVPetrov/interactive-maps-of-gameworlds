@@ -2,9 +2,10 @@
 
 class UserInputHandler {
 	
-	constructor(mapRenderer, gui, draw) {
+	constructor(mapRenderer, editor, gui, draw) {
 		this.mapRenderer = null;
 		if (mapRenderer !== undefined) this.mapRenderer = mapRenderer;
+		this.editor = editor;
 		this.gui = gui;
 		this.draw = draw;
 		this.mouseButtonPressed = -1;
@@ -18,7 +19,7 @@ class UserInputHandler {
 		const my = event.offsetY;
 		const mp = new Point(mx, my);
 		
-		this.gui.click(mx, my);
+		if (!this.gui.click(mx, my)) editor.select(viewport.toWorldCoordinates(mp));
 		
 		const quests = renderer.map.quests;
 		const maxDist = viewport.getFramebufferWidth() / 100;
@@ -30,6 +31,8 @@ class UserInputHandler {
 				break;
 			}
 		}
+		
+		
 		
 		this.draw();
 		

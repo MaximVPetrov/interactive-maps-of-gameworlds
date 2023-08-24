@@ -38,7 +38,7 @@ class Button {
 }
 
 class ImageList {
-	constructor(images, x, y) {
+	constructor(images, onPress, x, y) {
 		this.color = '#ffffff';
 		this.x = x === undefined ? 0 : x;
 		this.y = y === undefined ? 0 : y;
@@ -48,6 +48,7 @@ class ImageList {
 		this.offset = 0;
 		this.images = images;
 		this.visible = true;
+		this.onPress = onPress;
 	}
 
 	getFullHeight() {
@@ -55,8 +56,8 @@ class ImageList {
 	}
 	
 	click(x, y) {
-		y = y - this.y + this.offset;
-		console.log('index: ' + Math.floor(y / this.imgHeight));
+		let ind = Math.floor((y - this.y + this.offset) / this.imgHeight);
+		this.onPress(ind);
 	}
 	
 	drag(x, y, dx, dy) {

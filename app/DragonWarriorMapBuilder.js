@@ -1,5 +1,3 @@
-"use strict";
-
 class DragonWarriorMapBuilder {
 	
 	constructor() {
@@ -122,5 +120,11 @@ class DragonWarriorMapBuilder {
 		this.createQuests();
 		this.createTestTileField();
 		return this.map;
+	}
+}
+
+function generateDragonWarriorMapContainer() {
+	return {
+		
 	}
 }

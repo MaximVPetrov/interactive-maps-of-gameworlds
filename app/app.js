@@ -122,6 +122,16 @@ function showTextInNewWindow(t) {
 	win.document.body.innerHTML = '<pre>' + t + '</pre>';
 }
 
+function findQuest(quests, id) {
+	for (let q of quests) {
+		if (q.id == id) {
+			return q;
+		}
+	}
+	console.error('Unable to find quest "' + id + '"');
+	return null;
+}
+
 
 function pointToContainer(p) {
 	return {
@@ -151,7 +161,7 @@ function tileFieldToContainer(tf, qList) {
 	}
 	const quests = [];
 	for (let uq of tf.quests) {
-		quests.push(qList.indexOf(uq));
+		quests.push(uq.id);
 	}
 	return {
 		type: 'tilefield',
@@ -175,16 +185,17 @@ function tileFieldToContainer(tf, qList) {
 function questToContainer(q, qList) {
 	const quests = [];
 	for (let uq of q.questsToUnlock) {
-		quests.push(qList.indexOf(uq));
+		quests.push(uq.id);
 	}
 	return {
 		type: 'quest',
+		id: q.id,
+		description: q.description,
+		action: q.action,
 		position: {
 			x: q.position.x,
 			y: q.position.y
 		},
-		description: q.description,
-		action: q.action,
 		quests: quests
 	}
 }
@@ -235,19 +246,26 @@ function createTileFieldFromContainer(c, tileSet, quests) {
 		tf.addTile(tileSet.getTile(t));
 	}
 	for (let i of c.quests) {
-		tf.addQuest(quests[i]);
+		const q = findQuest(quests, i);
+		if (q) {
+			tf.addQuest(q);
+		}
 	}
 	return tf;
 }
 
 function createQuestFromContainer(c, quests) {
 	const q = new Quest();
-	q.action = c.action;
+	q.id = c.id;
 	q.description = c.description;
+	q.action = c.action;
 	q.position.x = c.position.x;
 	q.position.y = c.position.y;
 	for (let i of c.quests) {
-		q.addPreviousQuests(quests[i]);
+		const pq = findQuest(quests, i);
+		if (pq) {
+			q.addPreviousQuests(pq);
+		}
 	}
 	return q;
 }

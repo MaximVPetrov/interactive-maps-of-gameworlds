@@ -10,7 +10,8 @@ const Actions = {
 
 class Quest {
 
-	constructor(desc, action, pos, posy) {
+	constructor(id, desc, action, pos, posy) {
+		this.id = undefined ? '' : id;
 		this.action = action === undefined ? Actions.WALK : action;
 		this.description = desc === undefined ? "No description" : desc;
 		this.position = new Point();

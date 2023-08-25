@@ -103,6 +103,7 @@ function onKeyPress(event) {
 
 function onEditorButtonPress() {
 	editor.setActive(!editor.active);
+	mapRenderer.editorMode = editor.active;
 }
 
 function onTileSelectorPress(ind) {

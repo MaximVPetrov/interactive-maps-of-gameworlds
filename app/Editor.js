@@ -90,7 +90,6 @@ class Editor {
 		if (this.active) {
 			const vp = this.renderer.viewport;
 			const ctx = vp.canvas.getContext('2d');
-			console.log(this.selected);
 			if (this.selected) {
 				ctx.fillStyle = 'rgba(0, 0, 255, 0.3)';
 				ctx.strokeStyle = '#000';

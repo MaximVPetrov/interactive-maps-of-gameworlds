@@ -1,5 +1,3 @@
-"use strict";
-
 class MapRenderer {
 	
 	constructor(map, canvas) {
@@ -61,10 +59,12 @@ class MapRenderer {
 			let imgtl = substrate.getTopLeft();
 			let imgbr = substrate.getBottomRight();
 			if (this.isBoxInView(imgtl, imgbr)) {
-				let imgtlpx = this.camera.toPixels(imgtl);
-				let imgbrpx = this.camera.toPixels(imgbr);
-				
+				let imgtlpx = this.viewport.toPixels(imgtl);
+				let imgbrpx = this.viewport.toPixels(imgbr);
 				ctx.drawImage(substrate.img, imgtlpx.x, imgtlpx.y, imgbrpx.x - imgtlpx.x, imgbrpx.y - imgtlpx.y);
+				// debug
+				ctx.fillStyle = 'rgba(128, 128, 128, 0.5)';
+				ctx.fillRect(imgtlpx.x, imgtlpx.y, imgbrpx.x - imgtlpx.x, imgbrpx.y - imgtlpx.y);
 			}
 		
 		}
@@ -74,6 +74,7 @@ class MapRenderer {
 		const cam = this.camera;
 		const viewport = this.viewport;
 		const ctx = this.context2d;
+		ctx.globalAlpha = 0.7;
 		const origin = viewport.toPixels(tf.getTopLeft());
 		const size = tf.tileSize * viewport.getPixelsPerUnit();
 		for (let i = 0; i < tf.numOfTilesY; i++) {
@@ -88,6 +89,7 @@ class MapRenderer {
 				}
 			}
 		}
+		ctx.globalAlpha = 1.0;
 	}
 	
 	drawTileFields() {

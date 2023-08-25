@@ -3,7 +3,8 @@
 const cnv = document.getElementById('canvas');
 
 const mapBuilder = new DragonWarriorMapBuilder();
-const map = mapBuilder.generateDragonWarriorMap();
+//const map = mapBuilder.generateDragonWarriorMap();
+const map = createMapFromContainer(generateDragonWarriorMapContainer());
 const mapRenderer = new MapRenderer(map, cnv);
 const editor = new Editor(mapRenderer);
 const gui = new GraphicalInterface(cnv);
@@ -142,10 +143,14 @@ function tileSetToContainer(ts) {
 	return c;
 }
 
-function tileFieldToContainer(tf) {
+function tileFieldToContainer(tf, qList) {
 	const tiles = [];
 	for (let t of tf.tiles) {
-		tiles.push(t.description);
+		tiles.push(t === undefined ? '' : t.description);
+	}
+	const quests = [];
+	for (let uq of tf.quests) {
+		quests.push(qList.indexOf(uq));
 	}
 	return {
 		type: 'tilefield',
@@ -161,7 +166,8 @@ function tileFieldToContainer(tf) {
 			x: tf.position.x,
 			y: tf.position.y,
 		},
-		tiles
+		tiles: tiles,
+		quests: quests
 	}
 }
 
@@ -183,16 +189,16 @@ function questToContainer(q, qList) {
 }
 
 function mapToContainer(m) {
+	const list = [];
+	for (let q of m.quests) {
+		list.push(questToContainer(q, m.quests));
+	}
 	for (let p of m.points) {
 		list.push(pointToContainer(p));
 	}
-	const list = [];
 	list.push(tileSetToContainer(editor.tileSet));
 	for (let tf of m.tileFields) {
-		list.push(tileFieldToContainer(tf));
-	}
-	for (let q of m.quests) {
-		list.push(questToContainer(q, m.quests));
+		list.push(tileFieldToContainer(tf, m.quests));
 	}
 	return {
 		objects: list,
@@ -204,6 +210,10 @@ function createPointFromContainer(c) {
 	return new Point(c.position.x, c.position.y);
 }
 
+function createSubstrateFromContainer(c) {
+	return new Substrate(c.image, c.width, c.height, c.position.x, c.position.y);
+}
+
 function createTileSetFromContainer(c) {
 	const tileSet = new TileSet();
 	const tiles = tileSet.tiles;
@@ -213,7 +223,7 @@ function createTileSetFromContainer(c) {
 	return tileSet;	
 }
 
-function createTileFieldFromContainer(c, tileSet) {
+function createTileFieldFromContainer(c, tileSet, quests) {
 	const tf = new TileField();
 	tf.numOfTilesX = c.size.x;
 	tf.numOfTilesY = c.size.y;
@@ -222,6 +232,9 @@ function createTileFieldFromContainer(c, tileSet) {
 	tf.position.y = c.position.y;
 	for (let t of c.tiles) {
 		tf.addTile(tileSet.getTile(t));
+	}
+	for (let i of c.quests) {
+		tf.addQuest(quests[i]);
 	}
 	return tf;
 }
@@ -243,11 +256,13 @@ function createMapFromContainer(c) {
 	let ts = new TileSet();
 	for (let i of c.objects) {
 		switch (i.type) {
+			case 'substrate':
+				m.addSubstrate(createSubstrateFromContainer(i));
 			case 'tileset':
 				ts = createTileSetFromContainer(i);
 				break;
 			case 'tilefield':
-				m.addTileField(createTileFieldFromContainer(i, ts));
+				m.addTileField(createTileFieldFromContainer(i, ts, m.quests));
 				break;
 			case 'quest':
 				m.addQuest(createQuestFromContainer(i, m.quests));

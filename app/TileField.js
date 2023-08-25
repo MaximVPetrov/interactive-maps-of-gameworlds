@@ -101,4 +101,17 @@ class TileField {
 			this.tiles.push(tile);
 		}
 	}
+	
+	addQuest(q) {
+		this.quests.push(q);
+	}
+	
+	isActive() {
+		for (let q of this.quests) {
+			if (q.isActive()) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

@@ -19,7 +19,7 @@ class UserInputHandler {
 		const my = event.offsetY;
 		const mp = new Point(mx, my);
 		
-		if (!this.gui.click(mx, my)) editor.select(viewport.toWorldCoordinates(mp));
+		if (!this.gui.click(mx, my)) editor.select(viewport.toWorldCoordinates(mp), event.shiftKey);
 		
 		const quests = renderer.map.quests;
 		const maxDist = viewport.getFramebufferWidth() / 100;
@@ -102,7 +102,7 @@ class UserInputHandler {
 				break;
 		}
 		
-		this.mapRenderer.draw();
+		this.draw();
 	}
 
 	keyUp(event) {

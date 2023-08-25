@@ -8,8 +8,8 @@ class Editor {
 			tf: null,
 			x: 0,
 			y: 0,
-			w: 0,
-			h: 0
+			w: 1,
+			h: 1
 		};
 		this.tileSet = this.createAndLoadTileSet();
 	}
@@ -59,16 +59,35 @@ class Editor {
 		}
 	}
 	
-	select(p) {
+	select(p, add) {
 		if (!this.active) return false;
 		// tile fields
 		for (let tf of this.renderer.map.tileFields) {
 			if (isNumberInRange(p.x, tf.getLeft(), tf.getRight()) && isNumberInRange(p.y, tf.getBottom(), tf.getTop())) {
-				this.selected = tf;
 				const ts = this.tileSelector;
 				const relCur = (new Point(p)).sub(tf.getTopLeft());
-				ts.x = Math.floor(relCur.x / tf.tileSize);
-				ts.y = Math.floor(-relCur.y / tf.tileSize);
+				if (add && this.selected == tf) {
+					const x = Math.floor(relCur.x / tf.tileSize);
+					const y = Math.floor(-relCur.y / tf.tileSize);
+					if (x < ts.x) {
+						ts.w = ts.x - x + 1;
+						ts.x = x;
+					} else {
+						ts.w = x - ts.x + 1;
+					}
+					if (y < ts.y) {
+						ts.h = ts.y - y + 1;
+						ts.y = y;
+					} else {
+						ts.h = y - ts.y + 1;
+					}
+				} else {
+					this.selected = tf;
+					ts.x = Math.floor(relCur.x / tf.tileSize);
+					ts.y = Math.floor(-relCur.y / tf.tileSize);
+					ts.w = 1;
+					ts.h = 1;
+				}
 				return true;
 			}
 		}
@@ -81,8 +100,13 @@ class Editor {
 	}
 	
 	setTile(ind) {
+		const ts = this.tileSelector;
 		if (this.selected instanceof TileField) {
-			this.selected.setTile(this.tileSelector.x, this.tileSelector.y, this.tileSet.tiles[ind]);
+			for (let i = ts.x; i < ts.x + ts.w; i++) {
+				for (let j = ts.y; j < ts.y + ts.h; j++) {
+					this.selected.setTile(i, j, this.tileSet.tiles[ind]);
+				}
+			}
 		}
 	}
 	
@@ -98,8 +122,10 @@ class Editor {
 				const height = this.selected.getHeight() * vp.getPixelsPerUnit();
 				ctx.fillRect(pos.x, pos.y, width, height);
 				ctx.strokeRect(pos.x, pos.y, width, height);
+				// tileSelector
 				const tileSize = this.selected.tileSize * vp.getPixelsPerUnit();
-				ctx.strokeRect(pos.x + tileSize * this.tileSelector.x, pos.y + tileSize * this.tileSelector.y, tileSize, tileSize); // selected tile contur
+				const ts = this.tileSelector;
+				ctx.strokeRect(pos.x + tileSize * ts.x, pos.y + tileSize * ts.y, tileSize * ts.w, tileSize * ts.h); // selected tile contur
 			}
 		}
 	}

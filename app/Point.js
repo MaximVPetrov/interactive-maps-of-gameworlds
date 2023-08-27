@@ -16,6 +16,10 @@ class Point {
 			this.y = y;
 		}
 	}
+	
+	clone() {
+		return new Point(this);
+	}
 
 	set(point) {
 		this.x = point.x;
@@ -36,6 +40,10 @@ class Point {
 
 	mag() {
 		return Math.sqrt(this.x * this.x + this.y * this.y);
+	}
+	
+	magSq() {
+		return this.x * this.x + this.y * this.y;
 	}
 
 	nor() {

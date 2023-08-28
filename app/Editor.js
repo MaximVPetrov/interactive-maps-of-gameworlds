@@ -18,17 +18,23 @@ class Editor {
 		const dir = 'img/tilesets/dw/';
 		const ext = '.png'
 		const tileNames = [
+			'barrier',
 			'brick',
 			'bridge',
 			'castle',
+			'cave',
 			'chest',
 			'desert',
 			'door',
+			'dungeon',
 			'grass',
 			'hill',
 			'king',
 			'mountain',
-			'stairs',
+			'seller',
+			'stairs_down',
+			'stairs_up',
+			'swamp',
 			'table',
 			'trees',
 			'village',
@@ -57,6 +63,10 @@ class Editor {
 		} else {
 			this.deactivate();
 		}
+	}
+	
+	isActive() {
+		return this.active;
 	}
 	
 	select(p, add) {
@@ -114,6 +124,9 @@ class Editor {
 		if (this.active) {
 			const vp = this.renderer.viewport;
 			const ctx = vp.canvas.getContext('2d');
+			this.renderer.drawPaths();
+			this.renderer.drawLocations();
+			// selector
 			if (this.selected) {
 				ctx.fillStyle = 'rgba(0, 0, 255, 0.3)';
 				ctx.strokeStyle = '#000';

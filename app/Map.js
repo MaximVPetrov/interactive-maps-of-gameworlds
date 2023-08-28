@@ -11,6 +11,11 @@ class Map {
 		this.substrates = [];
 		this.tileFields = [];
 		this.quests = [];
+		this.routeMesh = new RouteMesh();
+	}
+	
+	getLocations() {
+		return this.routeMesh.getLocations();
 	}
 	
 	addPoint(p) {
@@ -27,5 +32,13 @@ class Map {
 	
 	addQuest(q) {
 		this.quests.push(q);
+	}
+	
+	addLocation(loc) {
+		this.routeMesh.addLocation(loc);
+	}
+	
+	addPath(p) {
+		p.from.addPath(p);
 	}
 }

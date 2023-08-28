@@ -7,8 +7,9 @@ const mapBuilder = new DragonWarriorMapBuilder();
 const map = createMapFromContainer(generateDragonWarriorMapContainer());
 const mapRenderer = new MapRenderer(map, cnv);
 const editor = new Editor(mapRenderer);
+const guide = new Guide(mapRenderer);
 const gui = new GraphicalInterface(cnv);
-const userInputHandler = new UserInputHandler(mapRenderer, editor, gui, draw);
+const userInputHandler = new UserInputHandler(mapRenderer, guide, editor, gui, draw);
 
 run();
 
@@ -17,17 +18,23 @@ function run() {
 	gui.addButton('Save', onSaveButtonPress, true);
 	
 	const names = [
+		'barrier',
 		'brick',
 		'bridge',
 		'castle',
+		'cave',
 		'chest',
 		'desert',
 		'door',
+		'dungeon',
 		'grass',
 		'hill',
 		'king',
 		'mountain',
-		'stairs',
+		'seller',
+		'stairs_down',
+		'stairs_up',
+		'swamp',
 		'table',
 		'trees',
 		'village',
@@ -61,7 +68,11 @@ function resize() {
 
 function draw() {
 	mapRenderer.draw();
-	editor.draw();
+	if (editor.isActive()) {
+		editor.draw();
+	} else {
+		guide.draw();
+	}
 	gui.draw();
 }
 
@@ -270,6 +281,33 @@ function createQuestFromContainer(c, quests) {
 	return q;
 }
 
+function createLocation(c) {
+	const loc = new Location();
+	loc.id = c.id;
+	loc.position.x = c.position.x;
+	loc.position.y = c.position.y;
+	return loc;
+}
+
+function createPath(c, routeMesh, rev) {
+	const locTo = routeMesh.getLocation(c.to);
+	const locFrom = routeMesh.getLocation(c.from);
+	const path = new Path();
+	if (!rev) {
+		path.to = locTo;
+		path.from = locFrom;
+	} else {
+		path.to = locFrom;
+		path.from = locTo;
+	}
+	if (!c.distance) {
+		path.distance = locFrom.position.clone().sub(locTo.position).mag();
+	} else {
+		path.distance = c.distance;
+	}
+	return path;
+}
+
 function createMapFromContainer(c) {
 	let m = new Map();
 	let ts = new TileSet();
@@ -285,6 +323,15 @@ function createMapFromContainer(c) {
 				break;
 			case 'quest':
 				m.addQuest(createQuestFromContainer(i, m.quests));
+				break;
+			case 'location':
+				m.addLocation(createLocation(i));
+				break;
+			case 'path':
+				m.addPath(createPath(i, m.routeMesh));
+				if (i.hasReversed) {
+					m.addPath(createPath(i, m.routeMesh, true));
+				}
 				break;
 		}
 	}

@@ -2,9 +2,10 @@
 
 class UserInputHandler {
 	
-	constructor(mapRenderer, editor, gui, draw) {
+	constructor(mapRenderer, guide, editor, gui, draw) {
 		this.mapRenderer = null;
 		if (mapRenderer !== undefined) this.mapRenderer = mapRenderer;
+		this.guide = guide;
 		this.editor = editor;
 		this.gui = gui;
 		this.draw = draw;
@@ -18,27 +19,19 @@ class UserInputHandler {
 		const mx = event.offsetX;
 		const my = event.offsetY;
 		const mp = new Point(mx, my);
+		const mwp = viewport.toWorldCoordinates(mp);
 		
-		if (!this.gui.click(mx, my)) editor.select(viewport.toWorldCoordinates(mp), event.shiftKey);
-		
-		const quests = renderer.map.quests;
-		const maxDist = viewport.getFramebufferWidth() / 100;
-		for (const q of quests) {
-			const qp = viewport.toPixels(q.position);
-			const dist = (new Point(qp)).sub(mp).mag();
-			if (dist < maxDist && q.isActive()) {
-				q.completed = true;
-				break;
+		if (!this.gui.click(mx, my)) {
+			if (!editor.active) {
+				guide.click(mwp);
 			}
+			editor.select(mwp, event.shiftKey);
 		}
-		
-		
-		
+				
 		this.draw();
 		
 		// debug
-		const mw = renderer.viewport.toWorldCoordinates(new Point(mx, my));
-		console.log('Click: (' + mw.x + '; ' + mw.y + ')');
+		console.log('Click: (' + mwp.x + '; ' + mwp.y + ')');
 	}
 	
 	mouseDown(event) {

@@ -16,6 +16,8 @@ class MapRenderer {
 		this.questFont = '18px Serif'; 
 		this.questTextOffset = 8;
 		
+		this.locationMarkSize = 1.0; // world units
+		
 		this.editorMode = false;
 	}
 	
@@ -85,9 +87,15 @@ class MapRenderer {
 				let imgtlpx = this.viewport.toPixels(imgtl);
 				let imgbrpx = this.viewport.toPixels(imgbr);
 				ctx.drawImage(substrate.img, imgtlpx.x, imgtlpx.y, imgbrpx.x - imgtlpx.x, imgbrpx.y - imgtlpx.y);
-				// debug
-				ctx.fillStyle = 'rgba(128, 128, 128, 0.5)';
-				ctx.fillRect(imgtlpx.x, imgtlpx.y, imgbrpx.x - imgtlpx.x, imgbrpx.y - imgtlpx.y);
+				if (this.editorMode) {
+					for (let tf of this.map.tileFields) {
+						if (isAABBIntersects(imgtl, imgbr, tf.getTopLeft(), tf.getBottomRight())) {
+							ctx.fillStyle = 'rgba(128, 128, 128, 0.5)';
+							ctx.fillRect(imgtlpx.x, imgtlpx.y, imgbrpx.x - imgtlpx.x, imgbrpx.y - imgtlpx.y);
+							break;
+						}
+					}
+				}
 			}
 		
 		}
@@ -98,7 +106,6 @@ class MapRenderer {
 			const cam = this.camera;
 			const viewport = this.viewport;
 			const ctx = this.context2d;
-			ctx.globalAlpha = 0.7;
 			const origin = viewport.toPixels(tf.getTopLeft());
 			const size = tf.tileSize * viewport.getPixelsPerUnit();
 			for (let i = 0; i < tf.numOfTilesY; i++) {
@@ -119,10 +126,21 @@ class MapRenderer {
 	
 	drawTileFields() {
 		for (const tf of this.map.tileFields) {
-			if (this.isBoxInView(tf.getTopLeft(), tf.getBottomRight())) {
+			const ptl = tf.getTopLeft();
+			const pbr = tf.getBottomRight();
+			if (this.isBoxInView(ptl, pbr)) {
+				if (this.editorMode) {
+					for (let sub of this.map.substrates) {
+						if (isAABBIntersects(ptl, pbr, sub.getTopLeft(), sub.getBottomRight())) {
+							this.context2d.globalAlpha = 0.62;
+							break;
+						}
+					}
+				}
 				this.drawTileField(tf);
 			}
 		}
+		this.context2d.globalAlpha = 1.0;
 	}
 	
 	drawQuest(q) {
@@ -205,6 +223,53 @@ class MapRenderer {
 					ctx.beginPath();
 					ctx.moveTo(qPos.x, qPos.y);
 					ctx.lineTo(pqPos.x, pqPos.y);
+					ctx.stroke();
+				}
+			}
+		}
+	}
+	
+	drawLocation(loc, r) {
+		const vp = this.viewport;
+		const pos = vp.toPixels(loc.position);
+		const ctx = this.context2d;
+		ctx.beginPath();
+		ctx.arc(pos.x, pos.y, r * vp.getPixelsPerUnit(), 0, 2 * Math.PI);
+		ctx.stroke();
+		ctx.fillText(loc.id, pos.x, pos.y);
+	}
+	
+	drawLocations() {
+		const ctx = this.context2d;
+		ctx.fillStyle = '#000000';
+		ctx.strokeStyle = '#ff0000';
+		ctx.lineWidth = 2;
+		ctx.font = '14px serif';
+		ctx.textAlign = 'center';
+		const locs = this.map.getLocations();
+		const hs = this.locationMarkSize * 0.5;
+		for (let loc of locs) {
+			// locations
+			if (this.isBoxInView(new Point(loc.position.x - hs, loc.position.y + hs), new Point(loc.position.x + hs, loc.position.y - hs))) {
+				this.drawLocation(loc, hs);
+			}
+		}
+	}
+	
+	drawPaths() {
+		const vp = this.viewport;
+		const ctx = this.context2d;
+		ctx.strokeStyle = '#A0A0A0';
+		ctx.lineWidth = 2;
+		const locs = this.map.getLocations();
+		for (let loc of locs) {
+			for (let p of loc.pathsTo) {
+				if (this.isLineInView(p.from.position, p.to.position)) {
+					const posFrom = vp.toPixels(p.from.position);
+					const posTo = vp.toPixels(p.to.position);
+					ctx.beginPath();
+					ctx.moveTo(posFrom.x, posFrom.y);
+					ctx.lineTo(posTo.x, posTo.y);
 					ctx.stroke();
 				}
 			}

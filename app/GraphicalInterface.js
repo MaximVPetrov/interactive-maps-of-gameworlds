@@ -1,4 +1,9 @@
 class Label {
+	constructor() {
+		this.padding = 1;
+		this.x = 0;
+		this.y = 0;
+	}
 	draw() {
 	}
 }
@@ -24,6 +29,7 @@ class Button {
 	
 	draw(context) {
 		if (this.visible) {
+			context.lineWidth = 1;
 			context.fillStyle = this.background;
 			context.fillRect(this.x, this.y, this.width, this.height);
 			context.strokeStyle = this.color;
@@ -76,6 +82,7 @@ class ImageList {
 		if (this.visible) {
 			context.save();
 			context.fillStyle = this.color;
+			context.lineWidth = 1;
 			context.beginPath();
 			context.moveTo(this.x, this.y);
 			context.lineTo(this.x + this.width, this.y);
@@ -125,24 +132,29 @@ class LayoutManager {
 		ctx.textAlign = 'left';
 		let x = 0;
 		for (let b of this.topButtons) {
-			b.font = this.font;
-			b.padding = this.padding;
-			b.x = 0;
-			b.y = 0;
-			const meas = ctx.measureText(b.text);
-			b.width = meas.width + this.padding * 2;
-			b.height = meas.fontBoundingBoxAscent + meas.fontBoundingBoxDescent + this.padding * 2;
-			x += b.width + this.padding;
+			if (b.visible) {
+				b.font = this.font;
+				b.padding = this.padding;
+				b.x = x;
+				b.y = 0;
+				const meas = ctx.measureText(b.text);
+				b.width = meas.width + this.padding * 2;
+				b.height = meas.fontBoundingBoxAscent + meas.fontBoundingBoxDescent + this.padding * 2;
+				x += b.width + this.padding;
+			}
 		}
+		x = 0;
 		for (let b of this.bottomButtons) {
-			b.font = this.font;
-			b.padding = this.padding;
-			const meas = ctx.measureText(b.text);
-			b.width = meas.width + this.padding * 2;
-			b.height = meas.fontBoundingBoxAscent + meas.fontBoundingBoxDescent + this.padding * 2;
-			b.x = 0;
-			b.y = ctx.canvas.height - b.height;
-			x += b.width + this.padding;
+			if (b.visible) {
+				b.font = this.font;
+				b.padding = this.padding;
+				const meas = ctx.measureText(b.text);
+				b.width = meas.width + this.padding * 2;
+				b.height = meas.fontBoundingBoxAscent + meas.fontBoundingBoxDescent + this.padding * 2;
+				b.x = x;
+				b.y = ctx.canvas.height - b.height;
+				x += b.width + this.padding;
+			}
 		}
 		if (this.imageList != null) {
 			const il = this.imageList;
@@ -184,7 +196,7 @@ class GraphicalInterface {
 	
 	click(x, y) {
 		for (let c of this.clickables) {
-			if (isNumberInRange(x, c.x, c.x + c.width) && isNumberInRange(y, c.y, c.y + c.height)) {
+			if (c.visible && isNumberInRange(x, c.x, c.x + c.width) && isNumberInRange(y, c.y, c.y + c.height)) {
 				c.click(x, y);
 				return true;
 			}

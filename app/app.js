@@ -11,11 +11,23 @@ const guide = new Guide(mapRenderer);
 const gui = new GraphicalInterface(cnv);
 const userInputHandler = new UserInputHandler(mapRenderer, guide, editor, gui, draw);
 
+const editorButtonId = 0;
+const guideButtonId = editorButtonId + 1;
+const selectorButtonId = guideButtonId + 1
+const addLocationButtonId = selectorButtonId + 1;
+
 run();
 
 function run() {
 	gui.addButton('Editor', onEditorButtonPress);
+	gui.addButton('Guide', onGuideButtonPress);
+	gui.addButton('Selector', onSelectorButtonPress);
+	gui.addButton('Location', onAddLocationButtonPress);
 	gui.addButton('Save', onSaveButtonPress, true);
+	
+	gui.manager.topButtons[guideButtonId].visible = false;
+	gui.manager.topButtons[selectorButtonId].visible = false;
+	gui.manager.topButtons[addLocationButtonId].visible = false;
 	
 	const names = [
 		'barrier',
@@ -112,9 +124,33 @@ function onKeyPress(event) {
 	userInputHandler.keyPress(event);
 }
 
+function onGuideButtonPress() {
+	editor.setActive(false);
+	mapRenderer.editorMode = false;
+	gui.manager.topButtons[editorButtonId].visible = true;
+	gui.manager.topButtons[guideButtonId].visible = false;
+	gui.manager.topButtons[selectorButtonId].visible = false;
+	gui.manager.topButtons[addLocationButtonId].visible = false;
+}
+
 function onEditorButtonPress() {
-	editor.setActive(!editor.active);
-	mapRenderer.editorMode = editor.active;
+	editor.setActive(true);
+	mapRenderer.editorMode = true;
+	gui.manager.topButtons[editorButtonId].visible = false;
+	gui.manager.topButtons[guideButtonId].visible = true;
+	gui.manager.topButtons[selectorButtonId].visible = true;
+	gui.manager.topButtons[addLocationButtonId].visible = true;
+	gui.resize();
+}
+
+function onSelectorButtonPress() {
+	editor.changeMode(EditorModes.MAIN);
+}
+
+function onAddLocationButtonPress() {
+	editor.baseName = prompt('Enter base name...', editor.baseName);
+	editor.counter = 0;
+	editor.changeMode(EditorModes.LOCATION_ADDING);
 }
 
 function onTileSelectorPress(ind) {
@@ -211,17 +247,61 @@ function questToContainer(q, qList) {
 	}
 }
 
+function substrateToContainer(s) {
+	return {
+		type: 'substrate',
+		position: {
+			x: s.position.x,
+			y: s.position.y
+		},
+		width: s.width,
+		height: s.height,
+		image: s.img.src
+	}
+}
+
+function locationToContainer(loc) {
+	return {
+		type: 'location',
+		id: loc.id,
+		position: {
+			x: loc.position.x,
+			y: loc.position.y
+		}
+	}
+}
+
+function pathToContainer(p) {
+	return {
+		type: 'path',
+		from: p.from.id,
+		to: p.to.id,
+		distance: p.distance
+	}
+}
+
 function mapToContainer(m) {
 	const list = [];
 	for (let q of m.quests) {
 		list.push(questToContainer(q, m.quests));
 	}
-	for (let p of m.points) {
-		list.push(pointToContainer(p));
+	for (let sub of m.substrates) {
+		list.push(substrateToContainer(sub));
 	}
 	list.push(tileSetToContainer(editor.tileSet));
 	for (let tf of m.tileFields) {
 		list.push(tileFieldToContainer(tf, m.quests));
+	}
+	for (let p of m.points) {
+		list.push(pointToContainer(p));
+	}
+	for (let loc of m.getLocations()) {
+		list.push(locationToContainer(loc));
+	}
+	for (let loc of m.getLocations()) {
+		for (let p of loc.pathsTo) {
+			list.push(pathToContainer(p));
+		}
 	}
 	return {
 		objects: list,

@@ -149,7 +149,7 @@ class MapRenderer {
 		ctx.beginPath();
 		ctx.arc(p.x, p.y, this.questMarkRadius, 0, 2 * Math.PI);
 		ctx.fill();
-		ctx.fillText(q.description, p.x, p.y - this.questTextOffset);
+		ctx.fillText(this.editorMode ? q.id : q.description, p.x, p.y - this.questTextOffset);
 	}
 	
 	drawQuests() {

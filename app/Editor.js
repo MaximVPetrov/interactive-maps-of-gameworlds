@@ -1,5 +1,54 @@
-class Editor {
+const EditorModes = {
+	MAIN: 'main',
+	LOCATION_ADDING: 'locatoin adding'
+}
+
+class Grid {
+	constructor() {
+		this.offset = new Point(0, 0);
+		this.step = 1;
+	}
 	
+	getNearestNode(p) {
+		const cellsX = Math.round((p.x - this.offset.x) / this.step);
+		const cellsY = Math.round((p.y - this.offset.y) / this.step);
+		return new Point(this.offset.x + cellsX * this.step, this.offset.y + cellsY * this.step);
+	}
+	
+	draw(mapRenderer) {
+		const cam = mapRenderer.camera;
+		const vp = mapRenderer.viewport;
+		const ppu = vp.getPixelsPerUnit();
+		// debug
+		const cellDistX = (cam.getLeft() - this.offset.x) / this.step;
+		const cellDistY = (cam.getTop() - this.offset.y) / this.step;
+		let x = (Math.ceil(cellDistX) - cellDistX) * ppu;
+		let y = (cellDistY - Math.floor(cellDistY)) * ppu;
+		const step = this.step * ppu;
+		const ctx = mapRenderer.context2d;
+		ctx.strokeStyle = '#a0a0a0';
+		ctx.lineWidth = 1;
+		const width = vp.getFramebufferWidth();
+		const height = vp.getFramebufferHeight();
+		while (x < width) {
+			ctx.beginPath();
+			ctx.moveTo(x, 0);
+			ctx.lineTo(x, height);
+			ctx.stroke();
+			x += step;
+		}
+		while (y < height) {
+			ctx.beginPath();
+			ctx.moveTo(0, y);
+			ctx.lineTo(width, y);
+			ctx.stroke();
+			y += step;
+		}
+	}
+}
+
+class Editor {
+
 	constructor(renderer) {
 		this.active = false;
 		this.renderer = renderer;
@@ -12,6 +61,12 @@ class Editor {
 			h: 1
 		};
 		this.tileSet = this.createAndLoadTileSet();
+		this.mode = EditorModes.MAIN;
+		this.grid = new Grid();
+		this.grid.offset.x = 0.5;
+		this.grid.offset.y = 0.5;
+		this.baseName = '';
+		this.counter = 0;
 	}
 
     createAndLoadTileSet() {
@@ -69,6 +124,10 @@ class Editor {
 		return this.active;
 	}
 	
+	changeMode(m) {
+		this.mode = m;
+	}
+	
 	select(p, add) {
 		if (!this.active) return false;
 		// tile fields
@@ -120,14 +179,45 @@ class Editor {
 		}
 	}
 	
+	click(pos, mod) {
+		if (this.isActive()) {
+			switch (this.mode) {
+				case EditorModes.MAIN:
+					this.select(pos, mod);
+					break;
+				case EditorModes.LOCATION_ADDING:
+					this.counter++;
+					let loc = new Location();
+					loc.id = this.baseName + this.counter;
+					loc.position.set(this.grid.getNearestNode(pos));
+					if (this.selected instanceof Location) {
+						let p = new Path();
+						p.from = this.selected;
+						p.to = loc;
+						p.distance = this.selected.position.clone().sub(loc.position).mag();
+						this.selected.addPath(p);
+						p = new Path();
+						p.from = loc;
+						p.to = this.selected;
+						p.distance = this.selected.position.clone().sub(loc.position).mag();
+						loc.addPath(p);
+					}
+					this.renderer.map.addLocation(loc);
+					this.selected = loc;
+					break;
+			}
+		}
+	}
+	
 	draw() {
 		if (this.active) {
 			const vp = this.renderer.viewport;
 			const ctx = vp.canvas.getContext('2d');
+			this.grid.draw(this.renderer);
 			this.renderer.drawPaths();
 			this.renderer.drawLocations();
 			// selector
-			if (this.selected) {
+			if (this.selected && this.selected instanceof TileField) {
 				ctx.fillStyle = 'rgba(0, 0, 255, 0.3)';
 				ctx.strokeStyle = '#000';
 				const pos = vp.toPixels(this.selected.getTopLeft());

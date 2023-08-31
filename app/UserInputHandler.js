@@ -25,7 +25,7 @@ class UserInputHandler {
 			if (!editor.active) {
 				guide.click(mwp);
 			}
-			editor.select(mwp, event.shiftKey);
+			editor.click(mwp, event.shiftKey);
 		}
 				
 		this.draw();

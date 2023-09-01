@@ -23,7 +23,9 @@ function run() {
 	gui.addButton('Guide', onGuideButtonPress);
 	gui.addButton('Selector', onSelectorButtonPress);
 	gui.addButton('Location', onAddLocationButtonPress);
-	gui.addButton('Save', onSaveButtonPress, true);
+	gui.addButton('Save (text)', onSaveButtonPress, true);
+	gui.addButton('Save (storage)', onSaveToStorageButtonPress, true);
+	gui.addButton('Load (storage)', onLoadFromStorageButtonPress, true);
 	
 	gui.manager.topButtons[guideButtonId].visible = false;
 	gui.manager.topButtons[selectorButtonId].visible = false;
@@ -158,9 +160,17 @@ function onTileSelectorPress(ind) {
 }
 
 function onSaveButtonPress() {
-	if (editor.selected) {
-	}
 	showTextInNewWindow(JSON.stringify(mapToContainer(map), undefined, '\t'));
+}
+
+function onSaveToStorageButtonPress() {
+	localStorage.setItem("map", JSON.stringify(mapToContainer(map)));
+}
+
+function onLoadFromStorageButtonPress() {
+	const text = localStorage.getItem('map');
+	const obj = JSON.parse(text);
+	map = createMapFromContainer(obj);
 }
 
 // Editor testing

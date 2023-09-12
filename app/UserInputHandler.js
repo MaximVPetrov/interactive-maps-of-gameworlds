@@ -1,5 +1,3 @@
-"use strict";
-
 class UserInputHandler {
 	
 	constructor(mapRenderer, guide, editor, gui, draw) {
@@ -93,9 +91,20 @@ class UserInputHandler {
 			case 'ArrowDown':
 				cam.move(new Point(0, -1));
 				break;
+			case 'Digit1':
+				this.editor.changeMode(EditorModes.QUEST_ADDING);
+				break;
+			case 'Escape':
+				this.editor.changeMode(EditorModes.MAIN);
+				break;
+			case 'KeyE':
+				this.editor.changeMode(EditorModes.SELECTED_EDIT);
+				break;
 		}
 		
 		this.draw();
+		// debug
+		console.log('Key is pressed; Code: ' + event.code);
 	}
 
 	keyUp(event) {

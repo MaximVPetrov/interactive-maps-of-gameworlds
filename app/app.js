@@ -16,6 +16,8 @@ const guideButtonId = editorButtonId + 1;
 const selectorButtonId = guideButtonId + 1
 const addLocationButtonId = selectorButtonId + 1;
 
+let debug = false;
+
 run();
 
 function run() {

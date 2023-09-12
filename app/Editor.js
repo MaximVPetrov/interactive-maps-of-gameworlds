@@ -1,6 +1,8 @@
 const EditorModes = {
 	MAIN: 'main',
-	LOCATION_ADDING: 'locatoin adding'
+	LOCATION_ADDING: 'locatoin adding',
+	QUEST_ADDING: 'quest adding',
+	SELECTED_EDIT: 'properties editor'
 }
 
 class Grid {
@@ -125,11 +127,41 @@ class Editor {
 	}
 	
 	changeMode(m) {
-		this.mode = m;
+		if (this.isActive) {
+			this.mode = m;
+			if (m == EditorModes.SELECTED_EDIT) {
+				if (this.selected instanceof Quest) {
+					this.editQuest(this.selected);
+				}
+				this.changeMode(EditorModes.MAIN);
+			}
+		}
+	}
+	
+	createQuest(pos) {
+		const q = new Quest();
+		q.id = prompt('id');
+		q.description = prompt('description');
+		q.position.set(this.grid.getNearestNode(pos));
+		this.renderer.map.addQuest(q);
+		this.selected = q;
+	}
+	
+	editQuest(q) {
+		q.id = prompt('id', q.id);
+		q.description = prompt('description', q.description);
 	}
 	
 	select(p, add) {
 		if (!this.active) return false;
+		// quests
+		const qhs = this.renderer.camera.getWidth() / 100;
+		for (let q of this.renderer.map.quests) {
+			if (isNumberInRange(p.x, q.position.x - qhs, q.position.x + qhs) && isNumberInRange(p.y, q.position.y - qhs, q.position.y + qhs)) {
+				this.selected = q;
+				return true;
+			}
+		}
 		// tile fields
 		for (let tf of this.renderer.map.tileFields) {
 			if (isNumberInRange(p.x, tf.getLeft(), tf.getRight()) && isNumberInRange(p.y, tf.getBottom(), tf.getTop())) {
@@ -160,7 +192,6 @@ class Editor {
 				return true;
 			}
 		}
-		// quests
 		this.selected = null;
 		return false;
 	}
@@ -205,6 +236,9 @@ class Editor {
 					this.renderer.map.addLocation(loc);
 					this.selected = loc;
 					break;
+				case EditorModes.QUEST_ADDING:
+					this.createQuest(pos);
+					break;
 			}
 		}
 	}
@@ -230,6 +264,12 @@ class Editor {
 				const ts = this.tileSelector;
 				ctx.strokeRect(pos.x + tileSize * ts.x, pos.y + tileSize * ts.y, tileSize * ts.w, tileSize * ts.h); // selected tile contur
 			}
+			// instruction and mode
+			ctx.color = '#000000';
+			ctx.font = '18px serif';
+			ctx.textAlign = 'left';
+			ctx.fillText('Mode: ' + this.mode, 10, 50);
+			ctx.fillText('1 - quest', 10, this.renderer.viewport.getFramebufferHeight() - 40);
 		}
 	}
 	

@@ -1,5 +1,3 @@
-"use strict"
-
 const Actions = {
 	WALK: 'Walk to',
 	TAKE: 'Pick up',

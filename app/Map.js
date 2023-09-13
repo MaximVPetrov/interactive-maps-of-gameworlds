@@ -1,5 +1,3 @@
-"use strict"
-
 class Map {
 	
 	constructor() {
@@ -32,6 +30,15 @@ class Map {
 	
 	addQuest(q) {
 		this.quests.push(q);
+	}
+
+	getQuest(id) {
+		for (let q of this.quests) {
+			if (q.id == id) {
+				return q;
+			}
+		}
+		return null;
 	}
 	
 	addLocation(loc) {

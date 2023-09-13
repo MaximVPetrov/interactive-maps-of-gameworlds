@@ -150,6 +150,25 @@ class Editor {
 	editQuest(q) {
 		q.id = prompt('id', q.id);
 		q.description = prompt('description', q.description);
+		let unlocks = [];
+		for (let uq of q.questsToUnlock) {
+			unlocks.push(uq.id);
+		}
+		let unlocksText = prompt('Quests to unlock', JSON.stringify(unlocks));
+		try {
+			unlocks = JSON.parse(unlocksText);
+		} catch (err) {
+			;
+		}
+		if (unlocks instanceof Array) {
+			q.questsToUnlock = [];
+			for (let id of unlocks) {
+				let nq = this.renderer.map.getQuest(id);
+				if (nq) {
+					q.questsToUnlock.push(nq);
+				}
+			}
+		}
 	}
 	
 	select(p, add) {

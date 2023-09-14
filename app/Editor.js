@@ -148,8 +148,12 @@ class Editor {
 	}
 	
 	editQuest(q) {
-		q.id = prompt('id', q.id);
-		q.description = prompt('description', q.description);
+		let input = prompt('id', q.id);
+		if (!input) return;
+		q.id = input;
+		input = prompt('description', q.description);
+		if (!input) return;
+		q.description = input;
 		let unlocks = [];
 		for (let uq of q.questsToUnlock) {
 			unlocks.push(uq.id);
@@ -158,7 +162,9 @@ class Editor {
 		try {
 			unlocks = JSON.parse(unlocksText);
 		} catch (err) {
-			;
+			if (err instanceof SyntaxError) {
+				alert('Syntax error!');
+			}
 		}
 		if (unlocks instanceof Array) {
 			q.questsToUnlock = [];
@@ -166,6 +172,8 @@ class Editor {
 				let nq = this.renderer.map.getQuest(id);
 				if (nq) {
 					q.questsToUnlock.push(nq);
+				} else {
+					alert('Quest "' + id + '" not found!');
 				}
 			}
 		}
@@ -288,7 +296,7 @@ class Editor {
 			ctx.font = '18px serif';
 			ctx.textAlign = 'left';
 			ctx.fillText('Mode: ' + this.mode, 10, 50);
-			ctx.fillText('1 - quest', 10, this.renderer.viewport.getFramebufferHeight() - 40);
+			ctx.fillText('1 - quest; e - edit', 10, this.renderer.viewport.getFramebufferHeight() - 40);
 		}
 	}
 	

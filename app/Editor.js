@@ -291,6 +291,15 @@ class Editor {
 				const ts = this.tileSelector;
 				ctx.strokeRect(pos.x + tileSize * ts.x, pos.y + tileSize * ts.y, tileSize * ts.w, tileSize * ts.h); // selected tile contur
 			}
+			if (this.selected && this.selected instanceof Quest) {
+				ctx.fillStyle = 'rgba(0, 0, 255, 0.3)';
+				ctx.strokeStyle = '#000';
+				const pos = vp.toPixels(new Point(this.selected.position.x, this.selected.position.y));
+				ctx.beginPath();
+				ctx.arc(pos.x, pos.y, vp.getPixelsPerUnit() * 0.5, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.stroke();
+			}
 			// instruction and mode
 			ctx.color = '#000000';
 			ctx.font = '18px serif';

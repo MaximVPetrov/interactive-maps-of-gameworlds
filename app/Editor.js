@@ -132,7 +132,9 @@ class Editor {
 			if (m == EditorModes.SELECTED_EDIT) {
 				if (this.selected instanceof Quest) {
 					this.editQuest(this.selected);
-				}
+				} else if (this.selected instanceof Location) {
+					this.editLocation(this.selected);
+				} 
 				this.changeMode(EditorModes.MAIN);
 			}
 		}
@@ -178,6 +180,67 @@ class Editor {
 			}
 		}
 	}
+
+	editLocation(loc) {
+		let input = prompt('id', loc.id);
+		if (!input) return;
+		loc.id = input;
+		let pos = {x: loc.position.x, y: loc.position.y};
+		input = prompt('position', JSON.stringify(pos));
+		if (!input) return;
+		try {
+			pos = JSON.parse(input);
+		} catch (err) {
+			if (err instanceof SyntaxError) {
+				alert('Syntax error!');
+			}
+		}
+		if (typeof pos.x == 'number') {
+			loc.position.x = pos.x;
+		} else {
+			alert('x is not a number!');
+		}
+		if (typeof pos.y == 'number') {
+			loc.position.y = pos.y;
+		} else {
+			alert('y is not a number!');
+		}
+
+		let paths = [];
+		for (let p of loc.pathsTo) {
+			paths.push({location: p.to.id, distance: p.distance});
+		}
+		input = prompt('Paths to', JSON.stringify(paths));
+		try {
+			paths = JSON.parse(input);
+		} catch (err) {
+			if (err instanceof SyntaxError) {
+				alert('Syntax error!');
+			}
+		}
+		if (paths instanceof Array) {
+			loc.pathsTo = [];
+			for (let p of paths) {
+				let toLoc = this.renderer.map.routeMesh.getLocation(p.location);
+				if (toLoc) {
+					let np = new Path();
+					np.from = loc;
+					np.to = toLoc;
+					if (p.distance !== undefined && typeof p.distance == 'number') {
+						np.distance = p.distance;
+					} else {
+						np.distance = toLoc.position.clone().sub(loc.position).mag();
+					}
+					loc.addPath(np);
+				} else {
+					alert('Location "' + p.location + '" not found!');
+				}
+			}
+		} else {
+			alert('Typed object is not an array!')
+		}
+
+	}
 	
 	select(p, add) {
 		if (!this.active) return false;
@@ -189,6 +252,14 @@ class Editor {
 				return true;
 			}
 		}
+		// nav points
+		const nhs = this.renderer.camera.getWidth() / 80;
+		for (let nav of this.renderer.map.routeMesh.locations) {
+			if (isNumberInRange(p.x, nav.position.x - nhs, nav.position.x + nhs) && isNumberInRange(p.y, nav.position.y - nhs, nav.position.y + nhs)) {
+				this.selected = nav;
+				return true;
+			}
+		}		
 		// tile fields
 		for (let tf of this.renderer.map.tileFields) {
 			if (isNumberInRange(p.x, tf.getLeft(), tf.getRight()) && isNumberInRange(p.y, tf.getBottom(), tf.getTop())) {
@@ -300,8 +371,17 @@ class Editor {
 				ctx.fill();
 				ctx.stroke();
 			}
+			if (this.selected && this.selected instanceof Location) {
+				ctx.fillStyle = 'rgba(0, 0, 255, 0.3)';
+				ctx.strokeStyle = '#000';
+				const pos = vp.toPixels(new Point(this.selected.position.x, this.selected.position.y));
+				ctx.beginPath();
+				ctx.arc(pos.x, pos.y, vp.getPixelsPerUnit() * 0.6, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.stroke();
+			}
 			// instruction and mode
-			ctx.color = '#000000';
+			ctx.fillStyle = '#000000';
 			ctx.font = '18px serif';
 			ctx.textAlign = 'left';
 			ctx.fillText('Mode: ' + this.mode, 10, 50);

@@ -259,7 +259,9 @@ class MapRenderer {
 	drawPaths() {
 		const vp = this.viewport;
 		const ctx = this.context2d;
-		ctx.strokeStyle = '#A0A0A0';
+		const dirBothStyle = '#A0A0A0';
+		const dirFromStyle = '#606060';
+		const dirToStyle = '#E0E0E0';
 		ctx.lineWidth = 2;
 		const locs = this.map.getLocations();
 		for (let loc of locs) {
@@ -267,6 +269,14 @@ class MapRenderer {
 				if (this.isLineInView(p.from.position, p.to.position)) {
 					const posFrom = vp.toPixels(p.from.position);
 					const posTo = vp.toPixels(p.to.position);
+					if (p.to.hasPathTo(loc)) {
+						ctx.strokeStyle = dirBothStyle;
+					} else {
+						const grad = ctx.createLinearGradient(posFrom.x, posFrom.y, posTo.x, posTo.y);
+						grad.addColorStop(0.0, dirFromStyle);
+						grad.addColorStop(1.0, dirToStyle);
+						ctx.strokeStyle = grad;
+					}
 					ctx.beginPath();
 					ctx.moveTo(posFrom.x, posFrom.y);
 					ctx.lineTo(posTo.x, posTo.y);

@@ -205,7 +205,6 @@ class Editor {
 		} else {
 			alert('y is not a number!');
 		}
-
 		let paths = [];
 		for (let p of loc.pathsTo) {
 			paths.push({location: p.to.id, distance: p.distance});

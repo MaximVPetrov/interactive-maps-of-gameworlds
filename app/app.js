@@ -2,9 +2,10 @@
 
 const cnv = document.getElementById('canvas');
 
-const mapBuilder = new DragonWarriorMapBuilder();
+//const mapBuilder = new DragonWarriorMapBuilder();
 //const map = mapBuilder.generateDragonWarriorMap();
-const map = createMapFromContainer(generateDragonWarriorMapContainer());
+//const map = createMapFromContainer(generateDragonWarriorMapContainer());
+const map = createMapFromContainer(SAVED_MAP);
 const mapRenderer = new MapRenderer(map, cnv);
 const editor = new Editor(mapRenderer);
 const guide = new Guide(mapRenderer);
@@ -266,8 +267,8 @@ function substrateToContainer(s) {
 			x: s.position.x,
 			y: s.position.y
 		},
-		width: s.width,
-		height: s.height,
+		width: s.getWidth(),
+		height: s.getHeight(),
 		image: s.img.src
 	}
 }
@@ -429,5 +430,3 @@ function createMapFromContainer(c) {
 	}
 	return m;
 }
-
-let testMap = createMapFromContainer(generateDragonWarriorMapContainer());

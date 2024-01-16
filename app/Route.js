@@ -92,6 +92,9 @@ class Scout {
 	}
 	
 	findTrail(locFrom, locTo) {
+		if (locFrom == null || locTo == null) {
+			return [];
+		}
 		if (locFrom.pathsTo.length == 0 || locFrom === locTo) {
 			return [ locFrom ];
 		}

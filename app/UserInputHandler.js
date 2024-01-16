@@ -94,6 +94,9 @@ class UserInputHandler {
 			case 'Digit1':
 				this.editor.changeMode(EditorModes.QUEST_ADDING);
 				break;
+			case 'Digit2':
+				this.editor.createConvexHull();
+				break;
 			case 'Escape':
 				this.editor.changeMode(EditorModes.MAIN);
 				break;

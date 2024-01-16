@@ -1,5 +1,6 @@
 const EditorModes = {
 	MAIN: 'main',
+	CONVEX_HULL_ADDING: 'convex hull adding',
 	LOCATION_ADDING: 'locatoin adding',
 	QUEST_ADDING: 'quest adding',
 	SELECTED_EDIT: 'properties editor'
@@ -130,13 +131,47 @@ class Editor {
 		if (this.isActive) {
 			this.mode = m;
 			if (m == EditorModes.SELECTED_EDIT) {
-				if (this.selected instanceof Quest) {
+				if (this.selected instanceof Point) {
+					this.editPoint(this.selected);
+				} else if (this.selected instanceof Quest) {
 					this.editQuest(this.selected);
 				} else if (this.selected instanceof Location) {
 					this.editLocation(this.selected);
 				} 
 				this.changeMode(EditorModes.MAIN);
 			}
+		}
+	}
+
+	editPoint() {
+		if (this.selected instanceof Point) {
+			let input = prompt('X', this.selected.x);
+			let nx = parseFloat(input);
+			if (nx != NaN) {
+				this.selected.x = nx;
+			}
+			input = prompt('Y', this.selected.y);
+			let ny = parseFloat(input);
+			if (ny != NaN) {
+				this.selected.y = ny;
+			}
+		}
+	}
+
+	createConvexHull() {
+		let n = parseInt(prompt('number of points'));
+		if (n != NaN && n > 2) {
+			let angleStep = 2 * Math.PI / n;
+			let angle = 0;
+			let points = [];
+			let pos = this.renderer.camera.position;
+			for (let i = 0; i < n; i++) {
+				points.push(pos.clone().add(new Point(Math.cos(angle), Math.sin(angle))));
+				angle += angleStep;
+			}
+			let hull = new ConvexHull();
+			hull.points = points;
+			this.renderer.map.addConvexHull(hull);
 		}
 	}
 	
@@ -153,6 +188,9 @@ class Editor {
 		let input = prompt('id', q.id);
 		if (!input) return;
 		q.id = input;
+		input = prompt('action', q.action);
+		if (!input) return;
+		q.action = input;
 		input = prompt('description', q.description);
 		if (!input) return;
 		q.description = input;
@@ -259,6 +297,24 @@ class Editor {
 				return true;
 			}
 		}		
+		// convex hulls points
+		for (let hull of this.renderer.map.convexHulls) {
+			for (let hp of hull.points) {
+				if (isNumberInRange(p.x, hp.x - nhs, hp.x + nhs) && isNumberInRange(p.y, hp.y - nhs, hp.y + nhs)) {
+					this.selected = hp;
+					return true;
+				}
+			}
+		}		
+		// convex hulls
+		for (let hull of this.renderer.map.convexHulls) {
+			let htl = hull.getTopLeft();
+			let hbr = hull.getBottomRight();
+			if (isNumberInRange(p.x, htl.x, hbr.x) && isNumberInRange(p.y, hbr.y, htl.y)) {
+				this.selected = hull;
+				return true;
+			}
+		}		
 		// tile fields
 		for (let tf of this.renderer.map.tileFields) {
 			if (isNumberInRange(p.x, tf.getLeft(), tf.getRight()) && isNumberInRange(p.y, tf.getBottom(), tf.getTop())) {
@@ -294,6 +350,7 @@ class Editor {
 	}
 	
 	move(v) {
+		console.log('cool');
 	}
 	
 	setTile(ind) {
@@ -344,7 +401,7 @@ class Editor {
 		if (this.active) {
 			const vp = this.renderer.viewport;
 			const ctx = vp.canvas.getContext('2d');
-			this.grid.draw(this.renderer);
+			//this.grid.draw(this.renderer);
 			this.renderer.drawPaths();
 			this.renderer.drawLocations();
 			// selector
@@ -379,12 +436,32 @@ class Editor {
 				ctx.fill();
 				ctx.stroke();
 			}
+			if (this.selected && this.selected instanceof Point) {
+				ctx.fillStyle = 'rgba(0, 0, 255, 0.3)';
+				ctx.strokeStyle = '#000';
+				const pos = vp.toPixels(new Point(this.selected.x, this.selected.y));
+				ctx.beginPath();
+				ctx.arc(pos.x, pos.y, vp.getPixelsPerUnit() * 0.6, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.stroke();
+			}
+			if (this.selected && this.selected instanceof ConvexHull) {
+				ctx.fillStyle = 'rgba(0, 0, 255, 0.3)';
+				ctx.strokeStyle = '#000';
+				const htl = this.selected.getTopLeft();
+				const hbr = this.selected.getBottomRight();
+				const pos = vp.toPixels(htl);
+				const width = (hbr.x - htl.x) * vp.getPixelsPerUnit();
+				const height = (htl.y - hbr.y) * vp.getPixelsPerUnit();
+				ctx.fillRect(pos.x, pos.y, width, height);
+				ctx.strokeRect(pos.x, pos.y, width, height);
+			}
 			// instruction and mode
 			ctx.fillStyle = '#000000';
 			ctx.font = '18px serif';
 			ctx.textAlign = 'left';
 			ctx.fillText('Mode: ' + this.mode, 10, 50);
-			ctx.fillText('1 - quest; e - edit', 10, this.renderer.viewport.getFramebufferHeight() - 40);
+			ctx.fillText('1 - quest; 2 - hull; e - edit', 10, this.renderer.viewport.getFramebufferHeight() - 40);
 		}
 	}
 	

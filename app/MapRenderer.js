@@ -78,6 +78,48 @@ class MapRenderer {
 		}
 	}
 
+	drawConvexHull(h) {
+		if (h.points.length > 2) {
+			// is hull in view
+			let tl = new Point(Infinity, -Infinity);
+			let br = new Point(-Infinity, Infinity);
+			for (let lp of h.points) {
+				let wp = lp.clone().add(h.position);
+				if (tl.x > wp.x) {
+					tl.x = wp.x;
+				}
+				if (br.x < wp.x) {
+					br.x = wp.x;
+				}
+				if (tl.y < wp.y) {
+					tl.y = wp.y;
+				}
+				if (br.y > wp.y) {
+					br.y = wp.y;
+				}
+			}
+			if (this.isBoxInView(tl, br)) {
+				const ctx = this.context2d;
+				ctx.fillStyle = h.colour;
+				let vpc = this.viewport.toPixels(h.points[0].clone().add(h.position));
+				ctx.beginPath();
+				ctx.moveTo(vpc.x, vpc.y);
+				for (let i = 1; i < h.points.length; i++) {
+					vpc = this.viewport.toPixels(h.points[i].clone().add(h.position));
+					ctx.lineTo(vpc.x, vpc.y);
+				}
+				ctx.closePath();
+				ctx.fill();
+			}
+		}
+	}
+	
+	drawConvexHulls() {
+		for (let hull of this.map.convexHulls) {
+			this.drawConvexHull(hull);
+		}
+	}
+
 	drawSubstrates() {
 		const ctx = this.context2d;
 		for (let substrate of this.map.substrates) {
@@ -188,6 +230,44 @@ class MapRenderer {
 				}
 				this.drawQuest(q);
 			}
+			// test section
+			if ((!isNumberInRange(q.position.x, this.camera.getLeft(), this.camera.getRight()) || !isNumberInRange(q.position.y, this.camera.getBottom(), this.camera.getTop())) && !q.isLocked() && !q.completed) {
+				let dir = q.position.clone().sub(this.camera.position);
+				let edgePos = new Point();
+				if (dir.x == 0) {
+					edgePos.y = dir.y > 0 ? this.camera.halfHeight : -this.camera.halfHeight;
+				} else {
+					let a = dir.y / dir.x;
+					if (dir.x > 0) {
+						edgePos.y = a * this.camera.halfWidth;
+					} else {
+						edgePos.y = a * -this.camera.halfWidth;
+					}
+					if (dir.y > 0 && this.camera.halfHeight < edgePos.y) {
+						edgePos.y = this.camera.halfHeight;
+					}
+					if (dir.y < 0 && -this.camera.halfHeight > edgePos.y) {
+						edgePos.y = -this.camera.halfHeight;
+					}
+					if (dir.y > 0) {
+						edgePos.x = this.camera.halfHeight / a;
+					} else {
+						edgePos.x = -this.camera.halfHeight / a;
+					}
+					if (dir.x > 0 && this.camera.halfWidth < edgePos.x) {
+						edgePos.x = this.camera.halfWidth;
+					}
+					if (dir.x < 0 && -this.camera.halfWidth > edgePos.x) {
+						edgePos.x = -this.camera.halfWidth;
+					}
+				}
+				const p = this.viewport.toPixels(edgePos.clone().add(this.camera.position));
+				ctx.fillStyle =  '#000000';
+				ctx.beginPath();
+				ctx.arc(p.x, p.y, this.viewport.getFramebufferWidth() / 100, 0, 2 * Math.PI);
+				ctx.fill();
+				//ctx.fillText(this.editorMode ? q.id : q.description, p.x, p.y - this.questTextOffset);
+			}
 		}
 	}
 	
@@ -291,6 +371,7 @@ class MapRenderer {
 		this.drawPoints();
 		this.drawSubstrates();
 		this.drawTileFields();
+		this.drawConvexHulls();
 		this.drawQuests();
 		if (this.editorMode) {
 			this.drawChainOfQuests();

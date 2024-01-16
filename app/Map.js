@@ -2,10 +2,13 @@ class Map {
 	
 	constructor() {
 		this.clear();
+		// TODO:
+		this.addConvexHull(new ConvexHull());
 	}
 	
 	clear () {
 		this.points = [];
+		this.convexHulls = [];
 		this.substrates = [];
 		this.tileFields = [];
 		this.quests = [];
@@ -18,6 +21,10 @@ class Map {
 	
 	addPoint(p) {
 		this.points.push(p);
+	}
+	
+	addConvexHull(h) {
+		this.convexHulls.push(h);
 	}
 	
 	addSubstrate(s) {

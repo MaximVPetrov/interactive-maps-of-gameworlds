@@ -182,6 +182,7 @@ function onSaveButtonPress() {
 
 function onSaveToStorageButtonPress() {
 	localStorage.setItem("map", JSON.stringify(mapToContainer(map)));
+	alert("Map saved");
 }
 
 function onLoadFromStorageButtonPress() {

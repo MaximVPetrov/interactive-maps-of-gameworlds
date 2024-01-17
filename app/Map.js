@@ -24,6 +24,13 @@ class Map {
 	addConvexHull(h) {
 		this.convexHulls.push(h);
 	}
+
+	removeConvexHull(h) {
+		const i = this.convexHulls.indexOf(h);
+		if (i > -1) {
+			this.convexHulls.splice(i, 1);
+		}
+	}
 	
 	addSubstrate(s) {
 		this.substrates.push(s);
@@ -35,6 +42,13 @@ class Map {
 	
 	addQuest(q) {
 		this.quests.push(q);
+	}
+	
+	removeQuest(q) {
+		const i = this.quests.indexOf(q);
+		if (i > -1) {
+			this.quests.splice(i, 1);
+		}
 	}
 
 	getQuest(id) {

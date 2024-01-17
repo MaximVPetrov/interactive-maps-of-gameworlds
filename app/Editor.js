@@ -542,16 +542,30 @@ class Editor {
 			ctx.font = '18px serif';
 			ctx.textAlign = 'left';
 			ctx.fillText('Mode: ' + this.mode, 10, 50);
-			ctx.fillText('1 - quest; 2 - hull; e - edit', 10, this.renderer.viewport.getFramebufferHeight() - 40);
+			ctx.fillText('1 - quest; 2 - hull; e - edit; c - clone; d - delete', 10, this.renderer.viewport.getFramebufferHeight() - 40);
 		}
 	}
 	
 	cloneSelected() {
-		if (this.selected instanceof ConvexHull) {
-			let hull = this.selected.clone();
-			hull.move(new Point(1.0, -1.0));
-			this.renderer.map.addConvexHull(hull);
+		if (this.isActive()) {
+			if (this.selected instanceof ConvexHull) {
+				let hull = this.selected.clone();
+				hull.move(new Point(1.0, -1.0));
+				this.renderer.map.addConvexHull(hull);
+				this.selected = hull;
+			}
 		}
 	}
 	
+	
+	deleteSelected() {
+		if (this.isActive()) {
+			if (this.selected instanceof Quest) {
+				this.renderer.map.removeQuest(this.selected);
+			} else if (this.selected instanceof ConvexHull) {
+				this.renderer.map.removeConvexHull(this.selected);
+			}
+			this.selected = null;
+		}
+	}
 }

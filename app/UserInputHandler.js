@@ -121,6 +121,9 @@ class UserInputHandler {
 			case 'KeyC':
 				this.editor.cloneSelected();
 				break;
+			case 'KeyD':
+				this.editor.deleteSelected();
+				break;
 		}
 		
 		this.draw();

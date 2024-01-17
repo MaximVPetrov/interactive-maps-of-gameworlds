@@ -43,5 +43,9 @@ class Quest {
 	isActive() {
 		return !(this.isLocked() || this.completed);
 	}
+	
+	move(p) {
+		this.position.add(p);
+	}
 
 }

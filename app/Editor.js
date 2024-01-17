@@ -471,6 +471,8 @@ class Editor {
 					this.selected.set(this.grid.getNearestNode(this.selected));
 				} else if (this.selected instanceof ConvexHull) {
 					this.selected.move(this.grid.getNearestNode(this.selected.points[0]).sub(this.selected.points[0]));
+				} else if (this.selected instanceof Quest) {
+					this.selected.move(this.grid.getNearestNode(this.selected.position).sub(this.selected.position));
 				}
 			}
 		}

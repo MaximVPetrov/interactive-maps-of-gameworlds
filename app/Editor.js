@@ -139,7 +139,9 @@ class Editor {
 					this.editQuest(this.selected);
 				} else if (this.selected instanceof Location) {
 					this.editLocation(this.selected);
-				} 
+				} else if (this.selected instanceof ConvexHull) {
+					this.editConvexHull(this.selected);
+				}
 				this.changeMode(EditorModes.MAIN);
 			}
 		}
@@ -161,8 +163,10 @@ class Editor {
 	}
 
 	createConvexHull() {
-		let n = parseInt(prompt('number of points'));
+		let input = prompt('Number of points', '4');
+		let n = parseInt(input);
 		if (n != NaN && n > 2) {
+			input = prompt('Colour', 'black');
 			let angleStep = 2 * Math.PI / n;
 			let angle = 0;
 			let points = [];
@@ -173,8 +177,19 @@ class Editor {
 			}
 			let hull = new ConvexHull();
 			hull.points = points;
+			hull.colour = input;
 			this.renderer.map.addConvexHull(hull);
+		} else {
+			alert("Number of points must be an integer and bigger than 2.");
 		}
+	}
+	
+	editConvexHull(hull) {
+		let input = prompt('Colour', hull.colour);
+		if (!input) {
+			return;
+		}
+		hull.colour = input;
 	}
 	
 	createQuest(pos) {

@@ -3,12 +3,6 @@ class ConvexHull {
 	constructor() {
 		this.points = [];
 		this.colour = 'black';
-		// TODO:
-		this.points.push(new Point(-0.5, 0.5));
-		this.points.push(new Point(-0.5, -0.5));
-		this.points.push(new Point(0.5, -0.5));
-		this.points.push(new Point(0.5, 0.5));
-		this.move(new Point(-2, 15));
 	}
 
 	getTopLeft() {
@@ -41,6 +35,15 @@ class ConvexHull {
 		for (let p of this.points) {
 			p.move(point);
 		}
+	}
+	
+	clone() {
+		let hull = new ConvexHull;
+		hull.colour = this.colour;
+		for (let p of this.points) {
+			hull.points.push(p.clone());
+		}
+		return hull;
 	}
 
 }

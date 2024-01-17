@@ -2,8 +2,6 @@ class Map {
 	
 	constructor() {
 		this.clear();
-		// TODO:
-		this.addConvexHull(new ConvexHull());
 	}
 	
 	clear () {

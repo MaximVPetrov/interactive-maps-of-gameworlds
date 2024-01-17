@@ -118,6 +118,9 @@ class UserInputHandler {
 			case 'KeyE':
 				this.editor.changeMode(EditorModes.SELECTED_EDIT);
 				break;
+			case 'KeyC':
+				this.editor.cloneSelected();
+				break;
 		}
 		
 		this.draw();

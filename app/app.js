@@ -1,12 +1,10 @@
-"use strict";
-
 const cnv = document.getElementById('canvas');
 
 //const mapBuilder = new DragonWarriorMapBuilder();
 //const map = mapBuilder.generateDragonWarriorMap();
 //const map = createMapFromContainer(generateDragonWarriorMapContainer());
 //const map = createMapFromContainer(SAVED_MAP);
-const map = new Map();
+var map = new Map();
 const mapRenderer = new MapRenderer(map, cnv);
 const editor = new Editor(mapRenderer);
 const guide = new Guide(mapRenderer);
@@ -21,6 +19,11 @@ const addLocationButtonId = selectorButtonId + 1;
 let debug = false;
 
 run();
+
+function setMap(m) {
+	map = m;
+	mapRenderer.setMap(m);
+}
 
 function run() {
 	gui.addButton('Editor', onEditorButtonPress);
@@ -183,8 +186,12 @@ function onSaveToStorageButtonPress() {
 
 function onLoadFromStorageButtonPress() {
 	const text = localStorage.getItem('map');
+	if (text == null) {
+		return;
+	}
 	const obj = JSON.parse(text);
-	map = createMapFromContainer(obj);
+	setMap(createMapFromContainer(obj));
+	draw();
 }
 
 // Editor testing
@@ -358,9 +365,10 @@ function createPointFromContainer(c) {
 function unpackConvexHull(c) {
 	const hull = new ConvexHull();
 	hull.colour = c.colour;
-	for (let p in c.points) {
+	for (let p of c.points) {
 		hull.points.push(new Point(p.x, p.y));
 	}
+	return hull;
 }
 
 function createSubstrateFromContainer(c) {

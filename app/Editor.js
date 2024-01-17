@@ -544,4 +544,12 @@ class Editor {
 		}
 	}
 	
+	cloneSelected() {
+		if (this.selected instanceof ConvexHull) {
+			let hull = this.selected.clone();
+			hull.move(new Point(0.5, -0.5));
+			this.renderer.map.addConvexHull(hull);
+		}
+	}
+	
 }

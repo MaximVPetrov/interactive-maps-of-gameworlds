@@ -11,6 +11,11 @@ class UserInputHandler {
 	}
 
 	mouseClick(event) {
+	}
+	
+	mouseDown(event) {
+		this.mouseButtonPressed = event.button;
+
 		const renderer = this.mapRenderer;
 		const viewport = renderer.viewport;
 
@@ -28,16 +33,24 @@ class UserInputHandler {
 				
 		this.draw();
 		
-		// debug
-		console.log('Click: (' + mwp.x + '; ' + mwp.y + ')');
-	}
-	
-	mouseDown(event) {
-		this.mouseButtonPressed = event.button;
+		// TODO: debug
+		console.log('Mouse Down: (' + mwp.x + '; ' + mwp.y + ')');
 	}
 	
 	mouseUp(event) {
 		this.mouseButtonPressed = -1;
+
+		const renderer = this.mapRenderer;
+		const viewport = renderer.viewport;
+
+		const mx = event.offsetX;
+		const my = event.offsetY;
+		const mp = new Point(mx, my);
+		const mwp = viewport.toWorldCoordinates(mp);
+
+		editor.pointerUp(mwp);
+		
+		this.draw();
 	}
 	
 	mouseMove(event) {
@@ -50,7 +63,9 @@ class UserInputHandler {
 				const cam = renderer.camera;
 				const mx = event.movementX / vp.getPixelsPerUnit();
 				const my = event.movementY / vp.getPixelsPerUnit();
-				cam.move(new Point(-mx, my));
+				if (!this.editor.move(new Point(mx, -my))) {
+					cam.move(new Point(-mx, my));
+				}
 				this.draw();
 			}
 		}
@@ -75,7 +90,7 @@ class UserInputHandler {
 		cam.move(new Point(wp.x - newx, wp.y - newy));
 		this.draw();
 	}
-
+	
 	keyDown(event) {
 		const cam = this.mapRenderer.camera;
 		switch (event.code) {

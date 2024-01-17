@@ -5,7 +5,8 @@ const cnv = document.getElementById('canvas');
 //const mapBuilder = new DragonWarriorMapBuilder();
 //const map = mapBuilder.generateDragonWarriorMap();
 //const map = createMapFromContainer(generateDragonWarriorMapContainer());
-const map = createMapFromContainer(SAVED_MAP);
+//const map = createMapFromContainer(SAVED_MAP);
+const map = new Map();
 const mapRenderer = new MapRenderer(map, cnv);
 const editor = new Editor(mapRenderer);
 const guide = new Guide(mapRenderer);
@@ -65,16 +66,20 @@ function run() {
 		images.push(img);
 	}
 	gui.addImageList(images, onTileSelectorPress, 200, 10);
+	gui.manager.imageList.visible = false;
 
 	window.addEventListener('keydown', onKeyDown);
 	window.addEventListener('keypress', onKeyPress);
-	window.addEventListener('mousedown', onMouseDown);
+	cnv.addEventListener('mousedown', onMouseDown);
 	window.addEventListener('mouseup', onMouseUp);
 	cnv.addEventListener('click', onMouseClick);
 	window.addEventListener('mousemove', onMouseMove);
 	window.addEventListener('wheel', onMouseWheel);
 	window.addEventListener("resize", onResizeWindow);
 	window.addEventListener("load", onLoadPage);
+	//window.addEventListener("pointermove", onPointerMove);
+	// touch
+	//window.addEventListener("touchstart", onTouchStart);
 }
 
 function resize() {
@@ -129,6 +134,10 @@ function onKeyPress(event) {
 	userInputHandler.keyPress(event);
 }
 
+function onPointerMove(event) {
+	console.log("1");
+}
+
 function onGuideButtonPress() {
 	editor.setActive(false);
 	mapRenderer.editorMode = false;
@@ -136,6 +145,7 @@ function onGuideButtonPress() {
 	gui.manager.topButtons[guideButtonId].visible = false;
 	gui.manager.topButtons[selectorButtonId].visible = false;
 	gui.manager.topButtons[addLocationButtonId].visible = false;
+	gui.manager.imageList.visible = false;
 }
 
 function onEditorButtonPress() {
@@ -145,6 +155,7 @@ function onEditorButtonPress() {
 	gui.manager.topButtons[guideButtonId].visible = true;
 	gui.manager.topButtons[selectorButtonId].visible = true;
 	gui.manager.topButtons[addLocationButtonId].visible = true;
+	gui.manager.imageList.visible = true;
 	gui.resize();
 }
 
@@ -201,6 +212,21 @@ function pointToContainer(p) {
 			y: p.position.y
 		}
 	}
+}
+
+function packConvexHull(h) {
+	const points = [];
+	for (let p of h.points) {
+		points.push({
+			x: p.x,
+			y: p.y
+		});
+	}
+	return {
+		type: 'hull',
+		colour: h.colour,
+		points: points
+	};
 }
 
 function tileSetToContainer(ts) {
@@ -308,6 +334,9 @@ function mapToContainer(m) {
 	for (let p of m.points) {
 		list.push(pointToContainer(p));
 	}
+	for (let h of m.convexHulls) {
+		list.push(packConvexHull(h));
+	}
 	for (let loc of m.getLocations()) {
 		list.push(locationToContainer(loc));
 	}
@@ -324,6 +353,14 @@ function mapToContainer(m) {
 
 function createPointFromContainer(c) {
 	return new Point(c.position.x, c.position.y);
+}
+
+function unpackConvexHull(c) {
+	const hull = new ConvexHull();
+	hull.colour = c.colour;
+	for (let p in c.points) {
+		hull.points.push(new Point(p.x, p.y));
+	}
 }
 
 function createSubstrateFromContainer(c) {
@@ -425,6 +462,9 @@ function createMapFromContainer(c) {
 				if (i.hasReversed) {
 					m.addPath(createPath(i, m.routeMesh, true));
 				}
+				break;
+			case 'hull':
+				m.addConvexHull(unpackConvexHull(i));
 				break;
 		}
 	}

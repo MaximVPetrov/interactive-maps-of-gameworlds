@@ -70,6 +70,8 @@ class Editor {
 		this.grid.offset.y = 0.5;
 		this.baseName = '';
 		this.counter = 0;
+		
+		this.snapToGrid = true;
 	}
 
     createAndLoadTileSet() {
@@ -350,7 +352,11 @@ class Editor {
 	}
 	
 	move(v) {
-		console.log('cool');
+		if (this.isActive() && this.selected != null) {
+			this.selected.move(v);
+			return true;
+		}
+		return false;
 	}
 	
 	setTile(ind) {
@@ -364,7 +370,10 @@ class Editor {
 		}
 	}
 	
+	// old variant of pointer up
+	// allows to select multiple tiles in tilefield
 	click(pos, mod) {
+		console.log("Mouse Click (X: " + pos.x + "; Y: " + pos.y + ")");
 		if (this.isActive()) {
 			switch (this.mode) {
 				case EditorModes.MAIN:
@@ -397,11 +406,66 @@ class Editor {
 		}
 	}
 	
+	// pos - in world coordinates
+	pointerDown(pos) {
+		console.log("Pointer Down (X: " + pos.x + "; Y: " + pos.y + ")");
+		if (this.isActive()) {
+			switch (this.mode) {
+				case EditorModes.MAIN:
+					this.select(pos, false);
+					break;
+				case EditorModes.LOCATION_ADDING:
+					this.counter++;
+					let loc = new Location();
+					loc.id = this.baseName + this.counter;
+					loc.position.set(this.grid.getNearestNode(pos));
+					if (this.selected instanceof Location) {
+						let p = new Path();
+						p.from = this.selected;
+						p.to = loc;
+						p.distance = this.selected.position.clone().sub(loc.position).mag();
+						this.selected.addPath(p);
+						p = new Path();
+						p.from = loc;
+						p.to = this.selected;
+						p.distance = this.selected.position.clone().sub(loc.position).mag();
+						loc.addPath(p);
+					}
+					this.renderer.map.addLocation(loc);
+					this.selected = loc;
+					break;
+				case EditorModes.QUEST_ADDING:
+					this.createQuest(pos);
+					break;
+			}
+		}
+	}
+	
+	pointerMove(pos, offset) {
+		
+	}
+	
+	pointerDrag(pos, offset) {
+		
+	}
+	
+	pointerUp(worldCoord) {
+		if (this.active) {
+			if (this.snapToGrid) {
+				if (this.selected instanceof Point) {
+					this.selected.set(this.grid.getNearestNode(this.selected));
+				}
+			}
+		}
+	}
+	
 	draw() {
 		if (this.active) {
 			const vp = this.renderer.viewport;
 			const ctx = vp.canvas.getContext('2d');
-			//this.grid.draw(this.renderer);
+			if (this.snapToGrid) {
+				this.grid.draw(this.renderer);
+			}
 			this.renderer.drawPaths();
 			this.renderer.drawLocations();
 			// selector

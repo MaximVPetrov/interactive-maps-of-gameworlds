@@ -469,6 +469,8 @@ class Editor {
 			if (this.snapToGrid) {
 				if (this.selected instanceof Point) {
 					this.selected.set(this.grid.getNearestNode(this.selected));
+				} else if (this.selected instanceof ConvexHull) {
+					this.selected.move(this.grid.getNearestNode(this.selected.points[0]).sub(this.selected.points[0]));
 				}
 			}
 		}
@@ -547,7 +549,7 @@ class Editor {
 	cloneSelected() {
 		if (this.selected instanceof ConvexHull) {
 			let hull = this.selected.clone();
-			hull.move(new Point(0.5, -0.5));
+			hull.move(new Point(1.0, -1.0));
 			this.renderer.map.addConvexHull(hull);
 		}
 	}

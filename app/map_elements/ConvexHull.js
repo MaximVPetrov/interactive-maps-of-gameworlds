@@ -3,6 +3,7 @@ class ConvexHull {
 	constructor() {
 		this.points = [];
 		this.colour = 'black';
+		this.quests = [];
 	}
 
 	getTopLeft() {
@@ -44,6 +45,15 @@ class ConvexHull {
 			hull.points.push(p.clone());
 		}
 		return hull;
+	}
+
+	isActive() {
+		for (let q of this.quests) {
+			if (q.isActive()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

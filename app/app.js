@@ -4,7 +4,9 @@ const cnv = document.getElementById('canvas');
 //const map = mapBuilder.generateDragonWarriorMap();
 //const map = createMapFromContainer(generateDragonWarriorMapContainer());
 //const map = createMapFromContainer(SAVED_MAP);
-var map = new Map();
+const map = createMapFromContainer(METROID);
+//const map = createMapFromContainer(METROID_2);
+//var map = new Map();
 const mapRenderer = new MapRenderer(map, cnv);
 const editor = new Editor(mapRenderer);
 const guide = new Guide(mapRenderer);
@@ -201,17 +203,6 @@ function showTextInNewWindow(t) {
 	win.document.body.innerHTML = '<pre>' + t + '</pre>';
 }
 
-function findQuest(quests, id) {
-	for (let q of quests) {
-		if (q.id == id) {
-			return q;
-		}
-	}
-	console.error('Unable to find quest "' + id + '"');
-	return null;
-}
-
-
 function pointToContainer(p) {
 	return {
 		type: 'point',
@@ -220,21 +211,6 @@ function pointToContainer(p) {
 			y: p.position.y
 		}
 	}
-}
-
-function packConvexHull(h) {
-	const points = [];
-	for (let p of h.points) {
-		points.push({
-			x: p.x,
-			y: p.y
-		});
-	}
-	return {
-		type: 'hull',
-		colour: h.colour,
-		points: points
-	};
 }
 
 function tileSetToContainer(ts) {
@@ -361,15 +337,6 @@ function mapToContainer(m) {
 
 function createPointFromContainer(c) {
 	return new Point(c.position.x, c.position.y);
-}
-
-function unpackConvexHull(c) {
-	const hull = new ConvexHull();
-	hull.colour = c.colour;
-	for (let p of c.points) {
-		hull.points.push(new Point(p.x, p.y));
-	}
-	return hull;
 }
 
 function createSubstrateFromContainer(c) {

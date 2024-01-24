@@ -78,6 +78,26 @@ class MapRenderer {
 		}
 	}
 
+	drawLine(line) {
+		const ctx = this.context2d;
+		ctx.strokeStyle = line.colour;
+		ctx.lineWidth = 2;
+		let fp = this.viewport.toPixels(line.firstPoint);
+		let sp = this.viewport.toPixels(line.secondPoint);
+		ctx.beginPath();
+		ctx.moveTo(fp.x, fp.y);
+		ctx.lineTo(sp.x, sp.y);
+		ctx.stroke();
+	}
+	
+	drawLines() {
+		for (let line of this.map.lines) {
+			if (this.isBoxInView(line.getTopLeft(), line.getBottomRight())) {
+				this.drawLine(line);
+			}
+		}		
+	}
+
 	drawConvexHull(h) {
 		if (h.points.length > 2) {
 			// is hull in view
@@ -367,10 +387,11 @@ class MapRenderer {
 	
 	draw() {
 		this.context2d.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		this.drawPoints();
 		this.drawSubstrates();
 		this.drawTileFields();
 		this.drawConvexHulls();
+		this.drawLines();
+		this.drawPoints();
 		this.drawQuests();
 		if (this.editorMode) {
 			this.drawChainOfQuests();

@@ -116,6 +116,7 @@ class UserInputHandler {
 				this.editor.changeMode(EditorModes.MAIN);
 				break;
 			case 'KeyE':
+				this.editor.editSelected();
 				this.editor.changeMode(EditorModes.SELECTED_EDIT);
 				break;
 			case 'KeyC':
@@ -123,6 +124,9 @@ class UserInputHandler {
 				break;
 			case 'KeyD':
 				this.editor.deleteSelected();
+				break;
+			case 'KeyL':
+				this.editor.createLine();
 				break;
 		}
 		

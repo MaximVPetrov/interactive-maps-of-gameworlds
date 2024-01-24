@@ -161,6 +161,28 @@ class Editor {
 			}
 		}
 	}
+	
+	createLine() {
+		let line = new Line();
+		this.editLine(line);
+		line.setPosition(this.renderer.camera.position);
+		if (this.snapToGrid) {
+			line.setPosition(this.grid.getNearestNode(line.getPosition()));
+		}
+
+
+
+		this.renderer.map.addLine(line);
+		this.selected = line;
+	}
+	
+	editLine(line) {
+		let input = prompt('Colour', line.colour);
+		if (input == null) {
+			return;
+		}
+		line.colour = input;
+	}
 
 	createConvexHull() {
 		let input = prompt('Number of points', '4');
@@ -190,6 +212,35 @@ class Editor {
 			return;
 		}
 		hull.colour = input;
+
+		let quests = [];
+		for (let uq of hull.quests) {
+			quests.push(uq.id);
+		}
+		input = prompt('Quests', JSON.stringify(quests));
+		try {
+			quests = JSON.parse(input);
+		} catch (err) {
+			if (err instanceof SyntaxError) {
+				alert('Syntax error!');
+			}
+		}
+		if (quests instanceof Array) {
+			hull.quests = [];
+			for (let id of quests) {
+				if (typeof id === 'string') {
+					let nq = this.renderer.map.getQuest(id);
+					if (nq) {
+						hull.quests.push(nq);
+					} else {
+						alert('Quest "' + id + '" not found!');
+					}
+				} else {
+					alert("Identificator of quest should be a text string!");
+				}
+			}
+		}
+
 	}
 	
 	createQuest(pos) {
@@ -298,6 +349,7 @@ class Editor {
 	
 	select(p, add) {
 		if (!this.active) return false;
+		const maxDist = this.renderer.camera.getWidth() / 100;
 		// quests
 		const qhs = this.renderer.camera.getWidth() / 100;
 		for (let q of this.renderer.map.quests) {
@@ -314,6 +366,17 @@ class Editor {
 				return true;
 			}
 		}		
+		// lines points
+		for (let line of this.renderer.map.lines) {
+			if (isNumberInRange(p.x, line.firstPoint.x - nhs, line.firstPoint.x + nhs) && isNumberInRange(p.y, line.firstPoint.y - nhs, line.firstPoint.y + nhs)) {
+				this.selected = line.firstPoint;
+				return true;
+			}
+			if (isNumberInRange(p.x, line.secondPoint.x - nhs, line.secondPoint.x + nhs) && isNumberInRange(p.y, line.secondPoint.y - nhs, line.secondPoint.y + nhs)) {
+				this.selected = line.secondPoint;
+				return true;
+			}
+		}		
 		// convex hulls points
 		for (let hull of this.renderer.map.convexHulls) {
 			for (let hp of hull.points) {
@@ -321,6 +384,26 @@ class Editor {
 					this.selected = hp;
 					return true;
 				}
+			}
+		}		
+		// lines
+		const maxDistSq = maxDist * maxDist;
+		for (let line of this.renderer.map.lines) {
+			let distSq = Infinity;
+			let lineLenSq = line.getLengthSq();
+			if (lineLenSq == 0.0) {
+				distSq = p.distSq(line.firstPoint);
+			} else {
+				const lineVec = line.secondPoint.clone().sub(line.firstPoint);
+				const t = p.clone().sub(line.firstPoint).dot(lineVec) / lineLenSq;
+				const tClamped = Math.max(0, Math.min(1, t));
+				const tScaled = new Point(lineVec.x * tClamped, lineVec.y * tClamped);
+				const proj = line.firstPoint.clone().add(tScaled);
+				distSq = proj.distSq(p);
+			}
+			if (distSq < maxDistSq) {
+				this.selected = line;
+				return true;
 			}
 		}		
 		// convex hulls
@@ -473,6 +556,8 @@ class Editor {
 					this.selected.move(this.grid.getNearestNode(this.selected.points[0]).sub(this.selected.points[0]));
 				} else if (this.selected instanceof Quest) {
 					this.selected.move(this.grid.getNearestNode(this.selected.position).sub(this.selected.position));
+				} else if (this.selected instanceof Line) {
+					this.selected.setPosition(this.grid.getNearestNode(this.selected.getPosition()));
 				}
 			}
 		}
@@ -528,7 +613,7 @@ class Editor {
 				ctx.fill();
 				ctx.stroke();
 			}
-			if (this.selected && this.selected instanceof ConvexHull) {
+			if (this.selected && (this.selected instanceof ConvexHull || this.selected instanceof Line)) {
 				ctx.fillStyle = 'rgba(0, 0, 255, 0.3)';
 				ctx.strokeStyle = '#000';
 				const htl = this.selected.getTopLeft();
@@ -544,21 +629,30 @@ class Editor {
 			ctx.font = '18px serif';
 			ctx.textAlign = 'left';
 			ctx.fillText('Mode: ' + this.mode, 10, 50);
-			ctx.fillText('1 - quest; 2 - hull; e - edit; c - clone; d - delete', 10, this.renderer.viewport.getFramebufferHeight() - 40);
+			ctx.fillText('1 - quest; 2 - hull; l - line; e - edit; c - clone; d - delete', 10, this.renderer.viewport.getFramebufferHeight() - 40);
 		}
 	}
 	
 	cloneSelected() {
 		if (this.isActive()) {
-			if (this.selected instanceof ConvexHull) {
-				let hull = this.selected.clone();
-				hull.move(new Point(1.0, -1.0));
-				this.renderer.map.addConvexHull(hull);
-				this.selected = hull;
+			if (this.selected instanceof ConvexHull || this.selected instanceof Quest) {
+				let ne = this.selected.clone();
+				ne.move(new Point(1.0, -1.0));
+				this.selected = ne;
+				if (this.selected instanceof ConvexHull) {
+					this.renderer.map.addConvexHull(ne);
+				} else if (this.selected instanceof Quest) {
+					this.renderer.map.addQuest(ne);
+				}
 			}
 		}
 	}
 	
+	editSelected() {
+		if (this.selected instanceof Line) {
+			this.editLine(this.selected);
+		}
+	}
 	
 	deleteSelected() {
 		if (this.isActive()) {

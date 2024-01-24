@@ -6,6 +6,7 @@ class Map {
 	
 	clear () {
 		this.points = [];
+		this.lines = [];
 		this.convexHulls = [];
 		this.substrates = [];
 		this.tileFields = [];
@@ -19,6 +20,17 @@ class Map {
 	
 	addPoint(p) {
 		this.points.push(p);
+	}
+	
+	addLine(line) {
+		this.lines.push(line);
+	}
+	
+	removeLine(line) {
+		const i = this.lines.indexOf(line);
+		if (i > -1) {
+			this.lines.splice(i, 1);
+		}
 	}
 	
 	addConvexHull(h) {

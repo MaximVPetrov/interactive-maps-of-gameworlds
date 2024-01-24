@@ -1,0 +1,17 @@
+clone() : MapElement
+
+getPosition() : Point
+setPosition(Point)
+move(Point)
+
+getTop() : Number
+getBottom() : Number
+getLeft() : Number
+getRight() : Number
+getWidth() : Number
+getHeight() : Number
+
+getTopLeft() : Point
+getBottomRight() : Point
+
+isActive() : Boolean

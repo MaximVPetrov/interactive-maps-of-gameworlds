@@ -4,8 +4,8 @@ const cnv = document.getElementById('canvas');
 //const map = mapBuilder.generateDragonWarriorMap();
 //const map = createMapFromContainer(generateDragonWarriorMapContainer());
 //const map = createMapFromContainer(SAVED_MAP);
-const map = createMapFromContainer(METROID);
-//const map = createMapFromContainer(METROID_2);
+//const map = createMapFromContainer(METROID);
+let map = createMapFromContainer(METROID_2);
 //var map = new Map();
 const mapRenderer = new MapRenderer(map, cnv);
 const editor = new Editor(mapRenderer);
@@ -305,11 +305,11 @@ function pathToContainer(p) {
 
 function mapToContainer(m) {
 	const list = [];
-	for (let q of m.quests) {
-		list.push(questToContainer(q, m.quests));
-	}
 	for (let sub of m.substrates) {
 		list.push(substrateToContainer(sub));
+	}
+	for (let q of m.quests) {
+		list.push(questToContainer(q, m.quests));
 	}
 	list.push(tileSetToContainer(editor.tileSet));
 	for (let tf of m.tileFields) {
@@ -317,6 +317,9 @@ function mapToContainer(m) {
 	}
 	for (let p of m.points) {
 		list.push(pointToContainer(p));
+	}
+	for (let line of m.lines) {
+		list.push(packLine(line));
 	}
 	for (let h of m.convexHulls) {
 		list.push(packConvexHull(h));
@@ -441,6 +444,9 @@ function createMapFromContainer(c) {
 				break;
 			case 'hull':
 				m.addConvexHull(unpackConvexHull(i));
+				break;
+			case 'line':
+				m.addLine(unpackLine(i));
 				break;
 		}
 	}

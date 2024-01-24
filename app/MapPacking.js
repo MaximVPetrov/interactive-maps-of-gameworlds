@@ -8,6 +8,35 @@ function findQuest(quests, id) {
 	return null;
 }
 
+function packLine (line) {
+	return {
+		type: 'line',
+		colour: line.colour,
+		firstPoint: {
+			x: line.firstPoint.x,
+			y: line.firstPoint.y
+		},
+		secondPoint: {
+			x: line.secondPoint.x,
+			y: line.secondPoint.y
+		}
+	}
+}
+
+function unpackLine(c) {
+	const line = new Line();
+	if (c.colour != undefined) {
+		line.colour = c.colour;
+	}
+	if (c.firstPoint != undefined) {
+		line.firstPoint = new Point(c.firstPoint.x, c.firstPoint.y);
+	}
+	if (c.secondPoint != undefined) {
+		line.secondPoint = new Point(c.secondPoint.x, c.secondPoint.y);
+	}
+	return line;
+}
+
 function packConvexHull(h) {
 	const points = [];
 	for (let p of h.points) {

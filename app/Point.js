@@ -74,6 +74,14 @@ class Point {
 		this.add(point);
 	}
 	
+	dist(point) {
+		return this.clone().sub(point).mag();
+	}
+
+	distSq(point) {
+		return this.clone().sub(point).magSq();
+	}
+	
 	snapToGrid(gridStep) {
 		this.x = Math.round(this.x / gridStep) * gridStep;
 		this.y = Math.round(this.y / gridStep) * gridStep;

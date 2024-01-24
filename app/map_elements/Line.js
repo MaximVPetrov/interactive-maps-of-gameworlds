@@ -14,6 +14,7 @@ class Line {
 		for (let q of this.quests) {
 			line.quests.push(q);
 		}
+		return line;
 	}
 	
 	getPosition() {

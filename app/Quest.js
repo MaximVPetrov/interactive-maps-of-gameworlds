@@ -24,6 +24,18 @@ class Quest {
 		this.questsToUnlock = [];
 		this.completed = false;
 	}
+	
+	clone() {
+		let nq = new Quest();
+		nq.id = this.id;
+		nq.action = this.action;
+		nq.description = this.description;
+		nq.position = this.position.clone();
+		for (let pq of this.questsToUnlock) {
+			nq.questsToUnlock.push(pq);
+		}
+		return nq;
+	}
 
 	addPreviousQuests(q) {
 		this.questsToUnlock.push(q);

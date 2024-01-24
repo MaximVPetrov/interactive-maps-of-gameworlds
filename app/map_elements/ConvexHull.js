@@ -48,12 +48,7 @@ class ConvexHull {
 	}
 
 	isActive() {
-		for (let q of this.quests) {
-			if (q.isActive()) {
-				return true;
-			}
-		}
-		return false;
+		return isActive(this.quests);
 	}
 
 }

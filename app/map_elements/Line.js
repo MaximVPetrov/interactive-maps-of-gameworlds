@@ -9,6 +9,7 @@ class Line {
 
 	clone() {
 		let line = new Line();
+		line.colour = this.colour();
 		line.firstPoint = this.firstPoint.clone();
 		line.secondPoint = this.secondPoint.clone();
 		for (let q of this.quests) {

@@ -99,44 +99,45 @@ class MapRenderer {
 	}
 
 	drawConvexHull(h) {
-		if (h.points.length > 2) {
-			// is hull in view
-			let tl = new Point(Infinity, -Infinity);
-			let br = new Point(-Infinity, Infinity);
-			for (let p of h.points) {
-				if (tl.x > p.x) {
-					tl.x = p.x;
-				}
-				if (br.x < p.x) {
-					br.x = p.x;
-				}
-				if (tl.y < p.y) {
-					tl.y = p.y;
-				}
-				if (br.y > p.y) {
-					br.y = p.y;
-				}
+		if (h.points < 3 || (!this.editorMode && !h.isActive())) return;
+		// is hull in view
+		let tl = new Point(Infinity, -Infinity);
+		let br = new Point(-Infinity, Infinity);
+		for (let p of h.points) {
+			if (tl.x > p.x) {
+				tl.x = p.x;
 			}
-			if (this.isBoxInView(tl, br)) {
-				const ctx = this.context2d;
-				ctx.fillStyle = h.colour;
-				let vpc = this.viewport.toPixels(h.points[0]);
-				ctx.beginPath();
-				ctx.moveTo(vpc.x, vpc.y);
-				for (let i = 1; i < h.points.length; i++) {
-					vpc = this.viewport.toPixels(h.points[i]);
-					ctx.lineTo(vpc.x, vpc.y);
-				}
-				ctx.closePath();
-				ctx.fill();
+			if (br.x < p.x) {
+				br.x = p.x;
 			}
+			if (tl.y < p.y) {
+				tl.y = p.y;
+			}
+			if (br.y > p.y) {
+				br.y = p.y;
+			}
+		}
+		if (this.isBoxInView(tl, br)) {
+			const ctx = this.context2d;
+			ctx.fillStyle = h.colour;
+			let vpc = this.viewport.toPixels(h.points[0]);
+			ctx.beginPath();
+			ctx.moveTo(vpc.x, vpc.y);
+			for (let i = 1; i < h.points.length; i++) {
+				vpc = this.viewport.toPixels(h.points[i]);
+				ctx.lineTo(vpc.x, vpc.y);
+			}
+			ctx.closePath();
+			ctx.fill();
 		}
 	}
 	
 	drawConvexHulls() {
+		this.context2d.globalAlpha = 0.5;
 		for (let hull of this.map.convexHulls) {
 			this.drawConvexHull(hull);
 		}
+		this.context2d.globalAlpha = 1.0;
 	}
 
 	drawSubstrates() {

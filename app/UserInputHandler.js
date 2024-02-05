@@ -28,8 +28,8 @@ class UserInputHandler {
 			if (!editor.active) {
 				guide.click(mwp);
 			}
-			editor.click(mwp, event.shiftKey);
 		}
+		editor.click(mwp, event.shiftKey);
 				
 		this.draw();
 		
@@ -51,6 +51,7 @@ class UserInputHandler {
 		editor.pointerUp(mwp);
 		
 		this.draw();
+		console.log("Mouse Up");
 	}
 	
 	mouseMove(event) {
@@ -127,6 +128,9 @@ class UserInputHandler {
 				break;
 			case 'KeyL':
 				this.editor.createLine();
+				break;
+			case 'KeyQ':
+				this.editor.createQuest();
 				break;
 		}
 		

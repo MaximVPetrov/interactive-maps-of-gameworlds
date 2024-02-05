@@ -28,6 +28,7 @@ class Grid {
 		let x = (Math.ceil(cellDistX) - cellDistX) * ppu;
 		let y = (cellDistY - Math.floor(cellDistY)) * ppu;
 		const step = this.step * ppu;
+		if (step < 3) return;
 		const ctx = mapRenderer.context2d;
 		ctx.strokeStyle = '#a0a0a0';
 		ctx.lineWidth = 1;
@@ -243,11 +244,11 @@ class Editor {
 
 	}
 	
-	createQuest(pos) {
+	createQuest() {
 		const q = new Quest();
 		q.id = prompt('id');
 		q.description = prompt('description');
-		q.position.set(this.grid.getNearestNode(pos));
+		q.position.set(this.grid.getNearestNode(this.renderer.camera.position));
 		this.renderer.map.addQuest(q);
 		this.selected = q;
 	}
@@ -256,6 +257,19 @@ class Editor {
 		let input = prompt('id', q.id);
 		if (!input) return;
 		q.id = input;
+		
+		input = prompt('Position', JSON.stringify(q.position));
+		let pos = null;
+		try {
+			pos = JSON.parse(input);
+		} catch (err) {
+			if (err instanceof SyntaxError) {
+				alert('Syntax error!');
+				return;
+			}
+		}
+		q.position = new Point(pos.x, pos.y);
+		
 		input = prompt('action', q.action);
 		if (!input) return;
 		q.action = input;
@@ -497,9 +511,6 @@ class Editor {
 					this.renderer.map.addLocation(loc);
 					this.selected = loc;
 					break;
-				case EditorModes.QUEST_ADDING:
-					this.createQuest(pos);
-					break;
 			}
 		}
 	}
@@ -635,7 +646,7 @@ class Editor {
 	
 	cloneSelected() {
 		if (this.isActive()) {
-			if (this.selected instanceof ConvexHull || this.selected instanceof Quest) {
+			if (this.selected instanceof ConvexHull || this.selected instanceof Quest || this.selected instanceof Line) {
 				let ne = this.selected.clone();
 				ne.move(new Point(1.0, -1.0));
 				this.selected = ne;
@@ -643,6 +654,8 @@ class Editor {
 					this.renderer.map.addConvexHull(ne);
 				} else if (this.selected instanceof Quest) {
 					this.renderer.map.addQuest(ne);
+				} else if (this.selected instanceof Line) {
+					this.renderer.map.addLine(ne);
 				}
 			}
 		}
@@ -660,6 +673,8 @@ class Editor {
 				this.renderer.map.removeQuest(this.selected);
 			} else if (this.selected instanceof ConvexHull) {
 				this.renderer.map.removeConvexHull(this.selected);
+			} else if (this.selected instanceof Line) {
+				this.renderer.map.removeLine(this.selected);
 			}
 			this.selected = null;
 		}

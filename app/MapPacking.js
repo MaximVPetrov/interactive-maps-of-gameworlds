@@ -4,7 +4,7 @@ function findQuest(quests, id) {
 			return q;
 		}
 	}
-	console.error('Unable to find quest "' + id + '"');
+	alert('Unable to find quest "' + id + '"');
 	return null;
 }
 
@@ -59,7 +59,7 @@ function packConvexHull(h) {
 	};
 }
 
-function unpackConvexHull(c) {
+function unpackConvexHull(c, quests) {
 	const hull = new ConvexHull();
 
 	if (c.colour != undefined) {

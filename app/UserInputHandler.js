@@ -129,6 +129,9 @@ class UserInputHandler {
 			case 'KeyL':
 				this.editor.createLine();
 				break;
+			case 'KeyM':
+				this.editor.setMultipleSelection(!this.editor.multipleSelection);
+				break;
 			case 'KeyQ':
 				this.editor.createQuest();
 				break;

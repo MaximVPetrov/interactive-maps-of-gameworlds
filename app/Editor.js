@@ -72,6 +72,7 @@ class Editor {
 		this.baseName = '';
 		this.counter = 0;
 		
+		this.multipleSelection = false;
 		this.snapToGrid = true;
 	}
 
@@ -128,6 +129,14 @@ class Editor {
 	
 	isActive() {
 		return this.active;
+	}
+	
+	setSnapToGrid(v) {
+		this.snapToGrid = v;
+	}
+	
+	setMultipleSelection(v) {
+		this.multipleSelection = v;
 	}
 	
 	changeMode(m) {
@@ -361,6 +370,26 @@ class Editor {
 
 	}
 	
+	setSelection(elem) {
+		if (this.multipleSelection && (elem instanceof Line || elem instanceof ConvexHull)) {
+			if (!Array.isArray(this.selected)) {
+				let first = this.selected;
+				this.selected = [];
+				if (first != null) {
+					this.selected.push(first);
+				}
+			}
+			let ind = this.selected.indexOf(elem);
+			if (ind > -1) {
+				this.selected.splice(ind, 1);
+			} else {
+			this.selected.push(elem);
+			}
+		} else {
+			this.selected = elem;
+		}		
+	}
+	
 	select(p, add) {
 		if (!this.active) return false;
 		const maxDist = this.renderer.camera.getWidth() / 100;
@@ -416,7 +445,7 @@ class Editor {
 				distSq = proj.distSq(p);
 			}
 			if (distSq < maxDistSq) {
-				this.selected = line;
+				this.setSelection(line);
 				return true;
 			}
 		}		
@@ -465,6 +494,12 @@ class Editor {
 	
 	move(v) {
 		if (this.isActive() && this.selected != null) {
+			if (Array.isArray(this.selected)) {
+				for (let elem of this.selected) {
+					elem.move(v);
+				}
+				return true;
+			}
 			this.selected.move(v);
 			return true;
 		}
@@ -635,12 +670,33 @@ class Editor {
 				ctx.fillRect(pos.x, pos.y, width, height);
 				ctx.strokeRect(pos.x, pos.y, width, height);
 			}
+			if (this.selected) {
+				if (Array.isArray(this.selected) && this.selected.length > 0) {
+					ctx.fillStyle = 'rgba(0, 0, 255, 0.3)';
+					ctx.strokeStyle = '#000';
+					const stl = new Point(Infinity, -Infinity);
+					const sbr = new Point(-Infinity, Infinity);
+					for (let elem of this.selected) {
+						const etl = elem.getTopLeft();
+						const ebr = elem.getBottomRight();
+						if (etl.x < stl.x) stl.x = etl.x;
+						if (etl.y > stl.y) stl.y = etl.y;
+						if (ebr.x > sbr.x) sbr.x = ebr.x;
+						if (ebr.y < sbr.y) sbr.y = ebr.y;
+					}
+					const pos = vp.toPixels(stl);
+					const width = (sbr.x - stl.x) * vp.getPixelsPerUnit();
+					const height = (stl.y - sbr.y) * vp.getPixelsPerUnit();
+					ctx.fillRect(pos.x, pos.y, width, height);
+					ctx.strokeRect(pos.x, pos.y, width, height);
+				} 
+			}
 			// instruction and mode
 			ctx.fillStyle = '#000000';
 			ctx.font = '18px serif';
 			ctx.textAlign = 'left';
 			ctx.fillText('Mode: ' + this.mode, 10, 50);
-			ctx.fillText('1 - quest; 2 - hull; l - line; e - edit; c - clone; d - delete', 10, this.renderer.viewport.getFramebufferHeight() - 40);
+			ctx.fillText('1 - quest; 2 - hull; l - line; e - edit; c - clone; d - delete; m - multiselection', 10, this.renderer.viewport.getFramebufferHeight() - 40);
 		}
 	}
 	
@@ -656,6 +712,11 @@ class Editor {
 					this.renderer.map.addQuest(ne);
 				} else if (this.selected instanceof Line) {
 					this.renderer.map.addLine(ne);
+				}
+			}
+			if (Array.isArray(this.selected)) {
+				for (let elem of this.selected) {
+					
 				}
 			}
 		}

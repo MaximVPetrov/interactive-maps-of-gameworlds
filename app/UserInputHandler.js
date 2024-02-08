@@ -116,6 +116,9 @@ class UserInputHandler {
 			case 'Escape':
 				this.editor.changeMode(EditorModes.MAIN);
 				break;
+			case 'KeyA':
+				this.editor.createArea();
+				break;
 			case 'KeyE':
 				this.editor.editSelected();
 				this.editor.changeMode(EditorModes.SELECTED_EDIT);

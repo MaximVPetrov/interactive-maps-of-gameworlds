@@ -5,8 +5,9 @@ const cnv = document.getElementById('canvas');
 //const map = createMapFromContainer(generateDragonWarriorMapContainer());
 //const map = createMapFromContainer(SAVED_MAP);
 //let map = createMapFromContainer(CASTLEVANIA_MSX);
-//let map = createMapFromContainer(METROID);
-let map = createMapFromContainer(POKEMON);
+//let map = createMapFromContainer(CASTLEVANIA_2);
+let map = createMapFromContainer(METROID);
+//let map = createMapFromContainer(POKEMON);
 //var map = new Map();
 const mapRenderer = new MapRenderer(map, cnv);
 const editor = new Editor(mapRenderer);
@@ -325,6 +326,9 @@ function mapToContainer(m) {
 	for (let h of m.convexHulls) {
 		list.push(packConvexHull(h));
 	}
+	for (const a of m.areas) {
+		list.push(packArea(a));
+	}
 	for (let loc of m.getLocations()) {
 		list.push(locationToContainer(loc));
 	}
@@ -448,6 +452,9 @@ function createMapFromContainer(c) {
 				break;
 			case 'line':
 				m.addLine(unpackLine(i));
+				break;
+			case 'area':
+				m.addArea(unpackArea(i, m.quests));
 				break;
 		}
 	}

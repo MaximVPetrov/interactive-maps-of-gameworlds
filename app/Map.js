@@ -1,5 +1,5 @@
 class Map {
-	
+		
 	constructor() {
 		this.clear();
 	}
@@ -12,6 +12,7 @@ class Map {
 		this.tileFields = [];
 		this.quests = [];
 		this.routeMesh = new RouteMesh();
+		this.areas = [];
 	}
 	
 	getLocations() {
@@ -78,5 +79,16 @@ class Map {
 	
 	addPath(p) {
 		p.from.addPath(p);
+	}
+	
+	addArea(a) {
+		if (this.areas.indexOf(a) != -1) return;
+		this.areas.push(a);
+	}
+	
+	removeArea(a) {
+		const ind = this.areas.indexOf(a);
+		if (ind < 0) return;
+		this.areas.splice(ind, 1);
 	}
 }

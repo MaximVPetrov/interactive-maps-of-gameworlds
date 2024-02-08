@@ -83,3 +83,48 @@ function unpackConvexHull(c, quests) {
 	
 	return hull;
 }
+
+function packArea(area) {
+	const qids = [];
+	for (let q of area.quests) {
+		qids.push(q.id);
+	}
+
+	return {
+		type: 'area',
+		position: {
+			x: area.getPosition().x,
+			y: area.getPosition().y
+		},
+		width: area.getWidth(),
+		height: area.getHeight(),
+		quests: qids
+	};
+}
+
+function unpackArea(c, quests) {
+	const area = new Area();
+
+	if (c.position != undefined) {
+		area.setPosition(new Point(c.position.x, c.position.y));
+	}
+
+	if (c.width != undefined) {
+		area.setWidth(c.width);
+	}
+
+	if (c.height != undefined) {
+		area.setHeight(c.height);
+	}
+
+	if (c.quests != undefined) {
+		for (let id of c.quests) {
+			const q = findQuest(quests, id);
+			if (q) {
+				area.quests.push(q);
+			}
+		}
+	}
+	
+	return area;
+}

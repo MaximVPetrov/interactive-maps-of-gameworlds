@@ -1,5 +1,3 @@
-"use strict"
-
 function isNumberInRange(value, rmin, rmax) {
 	return (value >= rmin && value <= rmax);
 }

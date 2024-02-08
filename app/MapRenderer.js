@@ -411,6 +411,25 @@ class MapRenderer {
 		}
 	}
 	
+	#drawNote(note) {
+		const vp = this.viewport;
+		const pos = vp.toPixels(note.getPosition());
+		const ctx = this.context2d;
+		ctx.beginPath();
+		ctx.arc(pos.x, pos.y, note.getWidth() * 0.5 * vp.getPixelsPerUnit(), 0, 2 * Math.PI);
+		ctx.stroke();
+		ctx.fillText(note.title, pos.x, pos.y);
+	}
+	
+	#drawNotes() {
+		const ctx = this.context2d;
+		ctx.fillStyle = 'black';
+		ctx.strokeStyle = 'red';
+		for (const note of this.map.notes) {
+			this.#drawNote(note);
+		}
+	}
+	
 	draw() {
 		this.context2d.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.drawSubstrates();
@@ -423,5 +442,6 @@ class MapRenderer {
 		if (this.editorMode) {
 			this.drawChainOfQuests();
 		}
+		this.#drawNotes();
 	}
 }

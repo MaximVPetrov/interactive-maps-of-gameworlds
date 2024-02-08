@@ -447,6 +447,14 @@ class Editor {
 				return true;
 			}
 		}
+		// notes
+		for (const note of this.renderer.map.notes) {
+			if (isNumberInRange(p.x, note.getLeft(), note.getRight()) && isNumberInRange(p.y, note.getBottom(), note.getTop())) {
+				this.setSelection(note);
+				return true;
+			}
+		}
+		
 		// nav points
 		const nhs = this.renderer.camera.getWidth() / 80;
 		for (let nav of this.renderer.map.routeMesh.locations) {
@@ -714,7 +722,7 @@ class Editor {
 				ctx.fill();
 				ctx.stroke();
 			}
-			if (this.selected && (this.selected instanceof ConvexHull || this.selected instanceof Line || this.selected instanceof Area)) {
+			if (this.selected && (this.selected instanceof ConvexHull || this.selected instanceof Line || this.selected instanceof Area || this.selected instanceof Note)) {
 				ctx.fillStyle = 'rgba(0, 0, 255, 0.3)';
 				ctx.strokeStyle = '#000';
 				const htl = this.selected.getTopLeft();
@@ -782,6 +790,8 @@ class Editor {
 			this.editLine(this.selected);
 		} else if (this.selected instanceof Area) {
 			this.editArea(this.selected);
+		} else if (this.selected instanceof Note) {
+			this.editNote(this.selected);
 		}
 	}
 	

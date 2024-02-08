@@ -370,6 +370,30 @@ class Editor {
 
 	}
 	
+	createArea() {
+		const area = new Area();
+		area.setPosition(this.renderer.camera.getPosition());
+		if (this.snapToGrid) {
+			area.setPosition(this.grid.getNearestNode(area.getPosition()));
+		}
+		this.renderer.map.addArea(area);
+	}
+	
+	editArea(area) {
+		let input = this.readPosition(area.getPosition());
+		if (input == null) return;
+		area.setPosition(input);
+		input = this.readNumber('Width', area.getWidth());
+		if (input == NaN) return;
+		area.setWidth(input);
+		input = this.readNumber('Height', area.getHeight());
+		if (input == NaN) return;
+		area.setHeight(input);
+		input = this.readQuests(area.quests);
+		if (input == null) return;
+		area.quests = input;
+	}
+	
 	setSelection(elem) {
 		if (this.multipleSelection && (elem instanceof Line || elem instanceof ConvexHull)) {
 			if (!Array.isArray(this.selected)) {
@@ -449,6 +473,13 @@ class Editor {
 				return true;
 			}
 		}		
+		// areas
+		for (const area of this.renderer.map.areas) {
+			if (isNumberInRange(p.x, area.getLeft(), area.getRight()) && isNumberInRange(p.y, area.getBottom(), area.getTop())) {
+				this.setSelection(area);
+				return true;
+			}
+		}
 		// convex hulls
 		for (let hull of this.renderer.map.convexHulls) {
 			let htl = hull.getTopLeft();
@@ -602,7 +633,7 @@ class Editor {
 					this.selected.move(this.grid.getNearestNode(this.selected.points[0]).sub(this.selected.points[0]));
 				} else if (this.selected instanceof Quest) {
 					this.selected.move(this.grid.getNearestNode(this.selected.position).sub(this.selected.position));
-				} else if (this.selected instanceof Line) {
+				} else if (this.selected instanceof Line || this.selected instanceof Area) {
 					this.selected.setPosition(this.grid.getNearestNode(this.selected.getPosition()));
 				}
 			}
@@ -659,7 +690,7 @@ class Editor {
 				ctx.fill();
 				ctx.stroke();
 			}
-			if (this.selected && (this.selected instanceof ConvexHull || this.selected instanceof Line)) {
+			if (this.selected && (this.selected instanceof ConvexHull || this.selected instanceof Line || this.selected instanceof Area)) {
 				ctx.fillStyle = 'rgba(0, 0, 255, 0.3)';
 				ctx.strokeStyle = '#000';
 				const htl = this.selected.getTopLeft();
@@ -725,6 +756,8 @@ class Editor {
 	editSelected() {
 		if (this.selected instanceof Line) {
 			this.editLine(this.selected);
+		} else if (this.selected instanceof Area) {
+			this.editArea(this.selected);
 		}
 	}
 	
@@ -739,5 +772,68 @@ class Editor {
 			}
 			this.selected = null;
 		}
+	}
+
+	readNumber(message, value) {
+		return parseFloat(prompt(message, value));
+	}
+	
+	readPosition(oldPos) {
+		let posObj = {x: oldPos.x, y: oldPos.y};
+		const input = prompt('Position', JSON.stringify(posObj));
+		if (!input) return null;
+		try {
+			posObj = JSON.parse(input);
+		} catch (err) {
+			if (err instanceof SyntaxError) {
+				alert('Syntax error!');
+				return null;
+			}
+		}
+		const newPos = new Point();
+		if (typeof posObj.x == 'number') {
+			newPos.x = posObj.x;
+		} else {
+			alert('x is not a number!');
+			return null;
+		}
+		if (typeof posObj.y == 'number') {
+			newPos.y = posObj.y;
+		} else {
+			alert('y is not a number!');
+			return null;
+		}
+		return newPos;
+	}
+	
+	readQuests(quests) {
+		const ids = [];
+		for (const q of quests) {
+			ids.push(q.id);
+		}
+		const input = prompt('Quests', JSON.stringify(ids));
+		try {
+			ids = JSON.parse(input);
+		} catch (err) {
+			if (err instanceof SyntaxError) {
+				alert('Syntax error!');
+				return null;
+			}
+		}
+		if (!(ids instanceof Array)) return null;
+		const newQuests = [];
+		for (let id of ids) {
+			if (typeof id === 'string') {
+				let nq = this.renderer.map.getQuest(id);
+				if (nq) {
+					newQuests.push(nq);
+				} else {
+					alert(`Quest "${id}" not found!`);
+				}
+			} else {
+				alert("Identificator of quest should be a text string!");
+			}
+		}
+		return newQuests;
 	}
 }

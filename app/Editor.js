@@ -394,6 +394,28 @@ class Editor {
 		area.quests = input;
 	}
 	
+	createNote() {
+		const note = new Note();
+		note.setPosition(this.renderer.camera.getPosition());
+		if (this.snapToGrid) {
+			note.setPosition(this.grid.getNearestNode(note.getPosition()));
+		}
+		this.editNote(note);
+		this.renderer.map.addNote(note);
+	}
+	
+	editNote(note) {
+		let input = prompt("Caption", note.title);
+		if (input == null) return;
+		note.title = input;
+		input = prompt("Text", note.message);
+		if (input == null) return;
+		note.message = input;
+		input = this.readPosition(note.getPosition());
+		if (input == null) return;
+		note.setPosition(input);
+	}
+	
 	setSelection(elem) {
 		if (this.multipleSelection && (elem instanceof Line || elem instanceof ConvexHull)) {
 			if (!Array.isArray(this.selected)) {
@@ -635,6 +657,8 @@ class Editor {
 					this.selected.move(this.grid.getNearestNode(this.selected.position).sub(this.selected.position));
 				} else if (this.selected instanceof Line || this.selected instanceof Area) {
 					this.selected.setPosition(this.grid.getNearestNode(this.selected.getPosition()));
+				} else if (this.selected != null){
+					this.selected.setPosition(this.grid.getNearestNode(this.selected.getPosition()));
 				}
 			}
 		}
@@ -769,6 +793,8 @@ class Editor {
 				this.renderer.map.removeConvexHull(this.selected);
 			} else if (this.selected instanceof Line) {
 				this.renderer.map.removeLine(this.selected);
+			} else if (this.selected instanceof Note) {
+				this.renderer.map.removeNote(this.selected);
 			}
 			this.selected = null;
 		}

@@ -1,4 +1,17 @@
+function addObjectToList(list, obj) {
+	if (list.indexOf(obj) != -1) return;
+	list.push(obj);	
+}
+
+function removeObjectFromList(list, obj) {
+	const ind = list.indexOf(obj);
+	if (ind < 0) return;
+	list.splice(ind, 1);
+}
+
 class Map {
+	
+	notes;
 		
 	constructor() {
 		this.clear();
@@ -13,6 +26,7 @@ class Map {
 		this.quests = [];
 		this.routeMesh = new RouteMesh();
 		this.areas = [];
+		this.notes = [];
 	}
 	
 	getLocations() {
@@ -90,5 +104,13 @@ class Map {
 		const ind = this.areas.indexOf(a);
 		if (ind < 0) return;
 		this.areas.splice(ind, 1);
+	}
+	
+	addNote(n) {
+		addObjectToList(this.notes, n);
+	}
+	
+	removeNote(n) {
+		removeObjectFromList(this.notes, n);
 	}
 }

@@ -37,6 +37,6 @@ class Viewport {
 	}
 	
 	getPixelsPerUnits(v) {
-		this.getPixelsPerUnit() * v;
+		return this.getPixelsPerUnit() * v;
 	}
 }
